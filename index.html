@@ -22,6 +22,7 @@
         .modal-image { max-width: 100%; max-height: 400px; }
         .form-label { font-weight: 500; }
         .required::after { content: " *"; color: red; }
+        .dropdown-section h5 { border-bottom: 2px solid #007bff; padding-bottom: 8px; margin-bottom: 15px; color: #2c3e50; }
     </style>
 </head>
 <body>
@@ -37,7 +38,9 @@
                 <div class="row">
                     <!-- Basic Information -->
                     <div class="col-md-6">
-                        <h5>📋 Basic Information</h5>
+                        <div class="dropdown-section">
+                            <h5>📋 Basic Information</h5>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label required">Name</label>
                             <input type="text" class="form-control" name="Name" required>
@@ -48,25 +51,33 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Product Type</label>
-                            <input type="text" class="form-control" name="Product Type" list="productTypes">
-                            <datalist id="productTypes"></datalist>
+                            <select class="form-control" name="Product Type">
+                                <option value="">-- Select Product Type --</option>
+                                <option value="Polo T-Shirt">Polo T-Shirt</option>
+                                <option value="Regular T-Shirt">Regular T-Shirt</option>
+                                <option value="Oversized T-Shirt">Oversized T-Shirt</option>
+                                <option value="Polyester T-Shirt">Polyester T-Shirt</option>
+                                <option value="Polyester Polo T-Shirt">Polyester Polo T-Shirt</option>
+                            </select>
                         </div>
                     </div>
                     
                     <!-- Pricing -->
                     <div class="col-md-6">
-                        <h5>💰 Pricing</h5>
+                        <div class="dropdown-section">
+                            <h5>💰 Pricing</h5>
+                        </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Cost Price</label>
+                                <label class="form-label">Cost Price (₹)</label>
                                 <input type="number" step="0.01" class="form-control" name="Cost Price">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">MRP</label>
+                                <label class="form-label">MRP (₹)</label>
                                 <input type="number" step="0.01" class="form-control" name="MRP">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label required">Selling Price</label>
+                                <label class="form-label required">Selling Price (₹)</label>
                                 <input type="number" step="0.01" class="form-control" name="Selling Price" required>
                             </div>
                         </div>
@@ -77,7 +88,17 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label required">Quantity</label>
-                                <input type="number" class="form-control" name="Quantity" required>
+                                <select class="form-control" name="Quantity" required>
+                                    <option value="">-- Select Quantity --</option>
+                                    <option value="1">1</option>
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                    <option value="500">500</option>
+                                    <option value="1000">1000</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -86,54 +107,97 @@
                 <!-- Product Attributes -->
                 <div class="row mt-3">
                     <div class="col-md-6">
-                        <h5>🎨 Attributes</h5>
+                        <div class="dropdown-section">
+                            <h5>🎨 Attributes</h5>
+                        </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Size</label>
-                                <input type="text" class="form-control" name="Size">
+                                <select class="form-control" name="Size">
+                                    <option value="">-- Select Size --</option>
+                                    <option value="S">S</option>
+                                    <option value="M">M</option>
+                                    <option value="L">L</option>
+                                    <option value="XL">XL</option>
+                                    <option value="XXL">XXL</option>
+                                    <option value="S to XXL">S to XXL</option>
+                                    <option value="M to XXL">M to XXL</option>
+                                    <option value="S to XL">S to XL</option>
+                                    <option value="M to XL">M to XL</option>
+                                </select>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Colour</label>
-                                <input type="text" class="form-control" name="Colour">
+                                <select class="form-control" name="Colour">
+                                    <option value="">-- Select Colour --</option>
+                                    <option value="White">White</option>
+                                    <option value="Black">Black</option>
+                                    <option value="Red">Red</option>
+                                    <option value="Pink">Pink</option>
+                                    <option value="Navy Blue">Navy Blue</option>
+                                    <option value="Sky Blue">Sky Blue</option>
+                                    <option value="Marron">Marron</option>
+                                </select>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">attr1_material</label>
-                            <input type="text" class="form-control" name="attr1_material">
+                            <select class="form-control" name="attr1_material">
+                                <option value="">-- Select Material --</option>
+                                <option value="Cotton">Cotton</option>
+                                <option value="Polyester">Polyester</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">attr2_ideal for</label>
-                            <input type="text" class="form-control" name="attr2_ideal for">
+                            <select class="form-control" name="attr2_ideal for">
+                                <option value="">-- Select Ideal For --</option>
+                                <option value="Plain T-Shirt">Plain T-Shirt</option>
+                                <option value="Printed">Printed</option>
+                                <option value="Solid">Solid</option>
+                            </select>
                         </div>
                     </div>
                     
                     <!-- Packaging Details -->
                     <div class="col-md-6">
-                        <h5>📦 Packaging Details</h5>
+                        <div class="dropdown-section">
+                            <h5>📦 Packaging Details</h5>
+                        </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Packaging Length (in cm)</label>
-                                <input type="number" step="0.1" class="form-control" name="Packaging Length (in cm)">
+                                <input type="number" step="0.1" class="form-control" name="Packaging Length (in cm)" value="30">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Packaging Breadth (in cm)</label>
-                                <input type="number" step="0.1" class="form-control" name="Packaging Breadth (in cm)">
+                                <input type="number" step="0.1" class="form-control" name="Packaging Breadth (in cm)" value="25">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Packaging Height (in cm)</label>
-                                <input type="number" step="0.1" class="form-control" name="Packaging Height (in cm)">
+                                <input type="number" step="0.1" class="form-control" name="Packaging Height (in cm)" value="3">
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Packaging Weight (in kg)</label>
-                            <input type="number" step="0.01" class="form-control" name="Packaging Weight (in kg)">
+                            <select class="form-control" name="Packaging Weight (in kg)">
+                                <option value="">-- Select Weight --</option>
+                                <option value="0.249">0.249 kg</option>
+                                <option value="0.250">0.250 kg</option>
+                                <option value="0.260">0.260 kg</option>
+                                <option value="0.270">0.270 kg</option>
+                                <option value="0.290">0.290 kg</option>
+                                <option value="0.300">0.300 kg</option>
+                            </select>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Image Upload -->
                 <div class="mt-4">
-                    <h5>🖼️ Product Images (Max 5)</h5>
+                    <div class="dropdown-section">
+                        <h5>🖼️ Product Images (Max 5)</h5>
+                    </div>
                     <div class="mb-3">
                         <input type="file" class="form-control" id="imageUpload" accept="image/*" multiple>
                         <small class="text-muted">You can select multiple images (JPEG, PNG, WebP)</small>
@@ -164,11 +228,13 @@
                             <th>Type</th>
                             <th>Price</th>
                             <th>Stock</th>
+                            <th>Size</th>
+                            <th>Colour</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="productsTable">
-                        <tr><td colspan="8" class="text-center">Loading products...</td></tr>
+                        <tr><td colspan="10" class="text-center">Loading products...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -194,7 +260,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // ✅ REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT URL
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbxoqR4h483opy39VMW2N4ZIR4PsToMkVu7gSiSKzcaUYZ76DgssFFI8Or-lGbcnGzZJ/exec";
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbznxm8-vCs661Fx9HmnzDrljXbhfMQw_G-CjfbiktZAaZ-YaZKDaQdlOC3xWwibVMpxMg/exec";
         
         // Global variables
         let products = [];
@@ -217,9 +283,17 @@
             
             // Cancel edit button
             document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
+            
+            // Add event listeners for dropdown validation
+            const requiredSelect = document.querySelector('select[name="Quantity"]');
+            if (requiredSelect) {
+                requiredSelect.addEventListener('change', function() {
+                    this.classList.remove('is-invalid');
+                });
+            }
         });
         
-        // Load product types for autocomplete
+        // Load product types for autocomplete (for manual entry)
         async function loadProductTypes() {
             try {
                 const url = `${scriptUrl}?action=getProductTypes`;
@@ -227,7 +301,9 @@
                 const types = await response.json();
                 
                 const datalist = document.getElementById('productTypes');
-                datalist.innerHTML = types.map(type => `<option value="${type}">`).join('');
+                if (datalist) {
+                    datalist.innerHTML = types.map(type => `<option value="${type}">`).join('');
+                }
             } catch (error) {
                 console.error('Error loading product types:', error);
             }
@@ -244,7 +320,7 @@
             } catch (error) {
                 console.error('Error loading products:', error);
                 document.getElementById('productsTable').innerHTML = 
-                    '<tr><td colspan="8" class="text-center text-danger">Error loading products</td></tr>';
+                    '<tr><td colspan="10" class="text-center text-danger">Error loading products</td></tr>';
             }
         }
         
@@ -253,7 +329,7 @@
             const tbody = document.getElementById('productsTable');
             
             if (products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center">No products found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center">No products found</td></tr>';
                 return;
             }
             
@@ -269,7 +345,7 @@
                     </td>
                     <td><strong>${product.Name || ''}</strong></td>
                     <td><code>${product["Sku Id"] || ''}</code></td>
-                    <td>${product["Product Type"] || '-'}</td>
+                    <td><span class="badge bg-primary">${product["Product Type"] || '-'}</span></td>
                     <td>
                         <span class="badge bg-success">₹${product["Selling Price"] || 0}</span><br>
                         <small class="text-muted"><del>₹${product.MRP || 0}</del></small>
@@ -279,11 +355,15 @@
                             ${product.Quantity || 0} in stock
                         </span>
                     </td>
+                    <td><span class="badge bg-secondary">${product.Size || '-'}</span></td>
                     <td>
-                        <button class="btn btn-sm btn-warning me-1" onclick="editProduct(${product.rowNumber})">
+                        ${product.Colour ? `<span class="badge" style="background-color: ${getColorCode(product.Colour)}; color: ${getTextColor(product.Colour)}">${product.Colour}</span>` : '-'}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1 mb-1" onclick="editProduct(${product.rowNumber})">
                             ✏️ Edit
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.rowNumber})">
+                        <button class="btn btn-sm btn-danger mb-1" onclick="deleteProduct(${product.rowNumber})">
                             🗑️ Delete
                         </button>
                     </td>
@@ -291,9 +371,38 @@
             `).join('');
         }
         
+        // Helper function to get color code for badges
+        function getColorCode(color) {
+            const colorMap = {
+                'White': '#ffffff',
+                'Black': '#000000',
+                'Red': '#dc3545',
+                'Pink': '#e83e8c',
+                'Navy Blue': '#001f3f',
+                'Sky Blue': '#87ceeb',
+                'Marron': '#800000'
+            };
+            return colorMap[color] || '#6c757d';
+        }
+        
+        // Helper function to determine text color (white or black) based on background
+        function getTextColor(color) {
+            const darkColors = ['Black', 'Navy Blue', 'Marron', 'Red'];
+            return darkColors.includes(color) ? '#ffffff' : '#000000';
+        }
+        
         // Handle form submission
         async function handleFormSubmit(e) {
             e.preventDefault();
+            
+            // Validate required dropdown
+            const quantitySelect = document.querySelector('select[name="Quantity"]');
+            if (!quantitySelect.value) {
+                quantitySelect.classList.add('is-invalid');
+                quantitySelect.focus();
+                alert('Please select a quantity');
+                return;
+            }
             
             const form = e.target;
             const formData = new FormData(form);
@@ -438,6 +547,12 @@
             document.getElementById('imagePreview').innerHTML = '';
             selectedImages = [];
             
+            // Remove validation classes
+            const quantitySelect = document.querySelector('select[name="Quantity"]');
+            if (quantitySelect) {
+                quantitySelect.classList.remove('is-invalid');
+            }
+            
             // Reset UI
             document.getElementById('formTitle').textContent = '➕ Add New Product';
             document.getElementById('submitBtn').textContent = 'Add Product';
@@ -464,7 +579,18 @@
                     if (key !== 'rowNumber' && key !== 'images') {
                         const input = form.querySelector(`[name="${key}"]`);
                         if (input) {
-                            input.value = product[key] || '';
+                            // Handle select elements
+                            if (input.tagName === 'SELECT') {
+                                const option = Array.from(input.options).find(opt => opt.value === product[key]);
+                                if (option) {
+                                    option.selected = true;
+                                } else {
+                                    // If value doesn't exist in dropdown, set as selected
+                                    input.value = product[key] || '';
+                                }
+                            } else {
+                                input.value = product[key] || '';
+                            }
                         }
                     }
                 });
@@ -553,4 +679,3 @@
     </script>
 </body>
 </html>
-
