@@ -23,6 +23,60 @@
         .form-label { font-weight: 500; }
         .required::after { content: " *"; color: red; }
         .dropdown-section h5 { border-bottom: 2px solid #007bff; padding-bottom: 8px; margin-bottom: 15px; color: #2c3e50; }
+        
+        /* Color Modal Styles */
+        .color-option { 
+            display: inline-block; 
+            width: 100px; 
+            height: 100px; 
+            margin: 5px; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
+            text-align: center;
+            line-height: 100px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        .color-option:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-color: #007bff;
+        }
+        .color-option.selected { 
+            border: 3px solid #28a745; 
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3);
+        }
+        .color-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+            gap: 10px; 
+            max-height: 400px; 
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .color-preview { 
+            width: 30px; 
+            height: 30px; 
+            border-radius: 50%; 
+            display: inline-block; 
+            margin-right: 10px; 
+            vertical-align: middle;
+            border: 1px solid #ddd;
+        }
+        .color-dropdown-btn {
+            position: relative;
+            text-align: left;
+            padding-left: 50px;
+        }
+        .color-dropdown-btn .color-preview {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
     </style>
 </head>
 <body>
@@ -128,16 +182,17 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Colour</label>
-                                <select class="form-control" name="Colour">
-                                    <option value="">-- Select Colour --</option>
-                                    <option value="White">White</option>
-                                    <option value="Black">Black</option>
-                                    <option value="Red">Red</option>
-                                    <option value="Pink">Pink</option>
-                                    <option value="Navy Blue">Navy Blue</option>
-                                    <option value="Sky Blue">Sky Blue</option>
-                                    <option value="Marron">Marron</option>
-                                </select>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="Colour" id="colourInput" readonly 
+                                           placeholder="Click to select colour">
+                                    <button class="btn btn-outline-secondary" type="button" id="selectColourBtn">
+                                        Select
+                                    </button>
+                                </div>
+                                <div class="color-preview-container mt-2" id="colorPreviewContainer" style="display: none;">
+                                    <span class="color-preview" id="selectedColorPreview"></span>
+                                    <span id="selectedColorText"></span>
+                                </div>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -257,6 +312,30 @@
         </div>
     </div>
     
+    <!-- Colour Selection Modal -->
+    <div class="modal fade" id="colourModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Colour</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="colourSearch" placeholder="Search colours...">
+                    </div>
+                    <div class="color-grid" id="colorGrid">
+                        <!-- Color options will be dynamically added here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmColourBtn">Select Colour</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // ✅ REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT URL
@@ -266,11 +345,36 @@
         let products = [];
         let selectedImages = [];
         let editingRow = null;
+        let selectedColour = null;
+        
+        // Color definitions with hex codes
+        const colorOptions = [
+            { name: "White", hex: "#FFFFFF" },
+            { name: "Off White", hex: "#FAF9F6" },
+            { name: "Black", hex: "#000000" },
+            { name: "Red", hex: "#FF0000" },
+            { name: "Pink", hex: "#FFC0CB" },
+            { name: "Light Pink", hex: "#FFB6C1" },
+            { name: "Navy Blue", hex: "#000080" },
+            { name: "Blue", hex: "#0000FF" },
+            { name: "Sky Blue", hex: "#87CEEB" },
+            { name: "Marron", hex: "#800000" },
+            { name: "Mint Green", hex: "#98FF98" },
+            { name: "Olive Brown", hex: "#645403" },
+            { name: "Brown", hex: "#964B00" },
+            { name: "Olive", hex: "#808000" },
+            { name: "Yellow", hex: "#FFFF00" },
+            { name: "Grey", hex: "#808080" },
+            { name: "Light Blue", hex: "#ADD8E6" },
+            { name: "Orange", hex: "#FFA500" },
+            { name: "Dark Grey", hex: "#A9A9A9" }
+        ];
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadProductTypes();
             loadProducts();
+            initializeColorModal();
             
             // Form submission
             document.getElementById('productForm').addEventListener('submit', handleFormSubmit);
@@ -284,6 +388,14 @@
             // Cancel edit button
             document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
             
+            // Colour selection button
+            document.getElementById('selectColourBtn').addEventListener('click', openColourModal);
+            document.getElementById('colourInput').addEventListener('click', openColourModal);
+            
+            // Colour modal events
+            document.getElementById('confirmColourBtn').addEventListener('click', confirmColourSelection);
+            document.getElementById('colourSearch').addEventListener('input', filterColors);
+            
             // Add event listeners for dropdown validation
             const requiredSelect = document.querySelector('select[name="Quantity"]');
             if (requiredSelect) {
@@ -293,7 +405,120 @@
             }
         });
         
-        // Load product types for autocomplete (for manual entry)
+        // Initialize color modal with all colors
+        function initializeColorModal() {
+            const colorGrid = document.getElementById('colorGrid');
+            colorGrid.innerHTML = '';
+            
+            colorOptions.forEach(color => {
+                const colorOption = document.createElement('div');
+                colorOption.className = 'color-option';
+                colorOption.style.backgroundColor = color.hex;
+                colorOption.style.color = getContrastColor(color.hex);
+                colorOption.dataset.name = color.name;
+                colorOption.dataset.hex = color.hex;
+                colorOption.textContent = color.name;
+                
+                colorOption.addEventListener('click', function() {
+                    // Remove selection from all options
+                    document.querySelectorAll('.color-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    // Select this option
+                    this.classList.add('selected');
+                    selectedColour = {
+                        name: this.dataset.name,
+                        hex: this.dataset.hex
+                    };
+                });
+                
+                colorGrid.appendChild(colorOption);
+            });
+        }
+        
+        // Filter colors based on search input
+        function filterColors() {
+            const searchTerm = document.getElementById('colourSearch').value.toLowerCase();
+            const colorOptions = document.querySelectorAll('.color-option');
+            
+            colorOptions.forEach(option => {
+                const colorName = option.dataset.name.toLowerCase();
+                if (colorName.includes(searchTerm)) {
+                    option.style.display = 'inline-block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
+        
+        // Open colour selection modal
+        function openColourModal() {
+            // Clear previous selection
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (selectedColour && opt.dataset.name === selectedColour.name) {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            // Clear search
+            document.getElementById('colourSearch').value = '';
+            filterColors();
+            
+            // Show modal
+            const colourModal = new bootstrap.Modal(document.getElementById('colourModal'));
+            colourModal.show();
+        }
+        
+        // Confirm colour selection
+        function confirmColourSelection() {
+            if (selectedColour) {
+                // Update colour input
+                document.getElementById('colourInput').value = selectedColour.name;
+                
+                // Show color preview
+                const previewContainer = document.getElementById('colorPreviewContainer');
+                const colorPreview = document.getElementById('selectedColorPreview');
+                const colorText = document.getElementById('selectedColorText');
+                
+                colorPreview.style.backgroundColor = selectedColour.hex;
+                colorText.textContent = selectedColour.name;
+                previewContainer.style.display = 'block';
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('colourModal')).hide();
+            } else {
+                alert('Please select a colour');
+            }
+        }
+        
+        // Helper function to determine text color based on background
+        function getContrastColor(hexColor) {
+            // Convert hex to RGB
+            const r = parseInt(hexColor.substr(1, 2), 16);
+            const g = parseInt(hexColor.substr(3, 2), 16);
+            const b = parseInt(hexColor.substr(5, 2), 16);
+            
+            // Calculate relative luminance
+            const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            
+            // Return white for dark backgrounds, black for light backgrounds
+            return luminance > 0.5 ? '#000000' : '#FFFFFF';
+        }
+        
+        // Get color code for badges
+        function getColorCode(colorName) {
+            const color = colorOptions.find(c => c.name === colorName);
+            return color ? color.hex : '#6c757d';
+        }
+        
+        // Get text color for badges
+        function getTextColor(colorName) {
+            const color = colorOptions.find(c => c.name === colorName);
+            return color ? getContrastColor(color.hex) : '#ffffff';
+        }
+        
+        // Load product types for autocomplete
         async function loadProductTypes() {
             try {
                 const url = `${scriptUrl}?action=getProductTypes`;
@@ -357,7 +582,12 @@
                     </td>
                     <td><span class="badge bg-secondary">${product.Size || '-'}</span></td>
                     <td>
-                        ${product.Colour ? `<span class="badge" style="background-color: ${getColorCode(product.Colour)}; color: ${getTextColor(product.Colour)}">${product.Colour}</span>` : '-'}
+                        ${product.Colour ? `
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <div style="width: 20px; height: 20px; border-radius: 50%; background-color: ${getColorCode(product.Colour)}; border: 1px solid #ddd;"></div>
+                                <span>${product.Colour}</span>
+                            </div>
+                        ` : '-'}
                     </td>
                     <td>
                         <button class="btn btn-sm btn-warning me-1 mb-1" onclick="editProduct(${product.rowNumber})">
@@ -369,26 +599,6 @@
                     </td>
                 </tr>
             `).join('');
-        }
-        
-        // Helper function to get color code for badges
-        function getColorCode(color) {
-            const colorMap = {
-                'White': '#ffffff',
-                'Black': '#000000',
-                'Red': '#dc3545',
-                'Pink': '#e83e8c',
-                'Navy Blue': '#001f3f',
-                'Sky Blue': '#87ceeb',
-                'Marron': '#800000'
-            };
-            return colorMap[color] || '#6c757d';
-        }
-        
-        // Helper function to determine text color (white or black) based on background
-        function getTextColor(color) {
-            const darkColors = ['Black', 'Navy Blue', 'Marron', 'Red'];
-            return darkColors.includes(color) ? '#ffffff' : '#000000';
         }
         
         // Handle form submission
@@ -545,7 +755,10 @@
             document.getElementById('productForm').reset();
             document.getElementById('rowNumber').value = '';
             document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('colourInput').value = '';
+            document.getElementById('colorPreviewContainer').style.display = 'none';
             selectedImages = [];
+            selectedColour = null;
             
             // Remove validation classes
             const quantitySelect = document.querySelector('select[name="Quantity"]');
@@ -577,19 +790,36 @@
                 const form = document.getElementById('productForm');
                 Object.keys(product).forEach(key => {
                     if (key !== 'rowNumber' && key !== 'images') {
-                        const input = form.querySelector(`[name="${key}"]`);
-                        if (input) {
-                            // Handle select elements
-                            if (input.tagName === 'SELECT') {
-                                const option = Array.from(input.options).find(opt => opt.value === product[key]);
-                                if (option) {
-                                    option.selected = true;
+                        if (key === 'Colour') {
+                            // Handle colour specially
+                            document.getElementById('colourInput').value = product[key] || '';
+                            if (product[key]) {
+                                selectedColour = colorOptions.find(c => c.name === product[key]) || null;
+                                if (selectedColour) {
+                                    const previewContainer = document.getElementById('colorPreviewContainer');
+                                    const colorPreview = document.getElementById('selectedColorPreview');
+                                    const colorText = document.getElementById('selectedColorText');
+                                    
+                                    colorPreview.style.backgroundColor = selectedColour.hex;
+                                    colorText.textContent = selectedColour.name;
+                                    previewContainer.style.display = 'block';
+                                }
+                            }
+                        } else {
+                            const input = form.querySelector(`[name="${key}"]`);
+                            if (input) {
+                                // Handle select elements
+                                if (input.tagName === 'SELECT') {
+                                    const option = Array.from(input.options).find(opt => opt.value === product[key]);
+                                    if (option) {
+                                        option.selected = true;
+                                    } else {
+                                        // If value doesn't exist in dropdown, set as selected
+                                        input.value = product[key] || '';
+                                    }
                                 } else {
-                                    // If value doesn't exist in dropdown, set as selected
                                     input.value = product[key] || '';
                                 }
-                            } else {
-                                input.value = product[key] || '';
                             }
                         }
                     }
