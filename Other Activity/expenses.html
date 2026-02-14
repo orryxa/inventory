@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Expenses Management · Enhanced</title>
+
+<style>
+:root {
+  --primary: #4361ee;
+  --primary-light: #5a75f5;
+  --secondary: #3f37c9;
+  --success: #4cc9f0;
+  --danger: #f72585;
+  --danger-light: #f94c9c;
+  --warning: #ffb74d;
+  --info: #64b5f6;
+  --bg: #f8f9fc;
+  --card-bg: #ffffff;
+  --text: #2b2d42;
+  --text-light: #8d99ae;
+  --text-lighter: #adb5bd;
+  --border: #eef0f4;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased;
+}
+.header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white; padding: 20px 20px 25px; text-align: center; box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+.header h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+.header p { opacity: 0.9; font-size: 14px; }
+.container { max-width: 1000px; margin: 0 auto; padding: 20px; padding-bottom: 80px; }
+.page { display: none; animation: fadeIn 0.3s ease-out; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.search-container {
+  background: white; border-radius: var(--radius-md); padding: 15px 20px; margin: -15px auto 20px;
+  box-shadow: var(--shadow); position: relative; z-index: 10; max-width: 95%;
+}
+.search-wrapper { position: relative; display: flex; align-items: center; }
+.search-icon { position: absolute; left: 15px; color: var(--text-light); font-size: 18px; }
+#searchBox {
+  width: 100%; padding: 14px 45px 14px 45px; border: 2px solid var(--border); border-radius: var(--radius-md);
+  font-size: 16px; background: #fafbff; transition: all 0.3s ease;
+}
+#searchBox:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1); }
+.clear-search { position: absolute; right: 15px; background: none; border: none; color: var(--text-lighter); font-size: 22px; cursor: pointer; display: none; }
+
+.table-container { background: white; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px; }
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; min-width: 600px; }
+thead { background: linear-gradient(to right, #f8faff, #f0f5ff); }
+th { padding: 18px 16px; text-align: left; font-weight: 600; color: var(--secondary); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border); }
+td { padding: 16px; border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+tr:hover { background-color: rgba(67, 97, 238, 0.03); }
+
+.btn {
+  padding: 12px 20px; border-radius: var(--radius-md); border: none; font-weight: 600; font-size: 15px;
+  cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-sm { padding: 8px 16px; font-size: 14px; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: linear-gradient(to right, var(--primary), var(--primary-light)); color: white; }
+.btn-primary:hover { background: linear-gradient(to right, var(--primary-light), #6a80f8); box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3); }
+.btn-secondary { background: #f1f5f9; color: var(--text); }
+.btn-secondary:hover { background: #e8eff8; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+.btn-danger { background: linear-gradient(to right, #ffeef0, #ffe8ec); color: var(--danger); border: 1px solid #ffdfe4; }
+.btn-danger:hover { background: linear-gradient(to right, #ffe8ec, #ffdfe4); box-shadow: 0 4px 12px rgba(247, 37, 133, 0.2); }
+.btn-success { background: linear-gradient(to right, #e8f7ff, #e0f4ff); color: var(--success); border: 1px solid #c2ebff; }
+.btn-success:hover { background: linear-gradient(to right, #e0f4ff, #d8f1ff); box-shadow: 0 4px 12px rgba(76, 201, 240, 0.2); }
+
+.details-container { background: white; border-radius: var(--radius-md); padding: 20px; margin-bottom: 25px; box-shadow: var(--shadow); }
+.detail-card { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.detail-card:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.detail-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.detail-value { font-size: 16px; font-weight: 500; color: var(--text); word-break: break-word; }
+
+.view-file-btn {
+  margin-top: 8px; background: linear-gradient(to right, #eef2ff, #e8edff); color: var(--primary);
+  border: 1px solid #dbe1ff; padding: 8px 16px; border-radius: var(--radius-sm); font-size: 14px;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s ease;
+}
+.view-file-btn:hover { background: linear-gradient(to right, #e8edff, #e0e7ff); box-shadow: 0 2px 8px rgba(67, 97, 238, 0.2); transform: translateY(-1px); }
+
+.form-container { background: white; border-radius: var(--radius-md); padding: 25px; margin-bottom: 25px; box-shadow: var(--shadow); }
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-weight: 600; color: var(--secondary); margin-bottom: 8px; font-size: 14px; }
+.form-input, .form-select {
+  width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: var(--radius-md);
+  font-size: 16px; background: #fafbff; transition: all 0.3s ease;
+}
+.form-input:focus, .form-select:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1); }
+.form-input[readonly] { background-color: #f9fafc; color: var(--text-light); cursor: not-allowed; border-color: #e2e7f0; }
+
+.button-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); }
+.button-group .btn { flex: 1; min-width: 140px; }
+
+.modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); z-index: 1000; animation: fadeIn 0.3s ease-out; }
+.modal-content { background: white; width: 90%; max-width: 450px; margin: 15vh auto; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); animation: slideUp 0.4s ease-out; overflow: hidden; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.modal-header { padding: 20px 25px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.modal-header h3 { font-size: 18px; font-weight: 600; color: var(--text); margin: 0; }
+.modal-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.modal-body { padding: 25px; color: var(--text); line-height: 1.6; }
+.modal-footer { padding: 20px 25px; border-top: 1px solid var(--border); display: flex; gap: 12px; justify-content: flex-end; }
+
+.loader { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); z-index: 1100; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.loader-spinner { width: 50px; height: 50px; border: 3px solid rgba(67, 97, 238, 0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state { text-align: center; padding: 50px 20px; color: var(--text-light); }
+.empty-icon { font-size: 48px; margin-bottom: 15px; opacity: 0.5; }
+
+.floating-btn {
+  position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none;
+  box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4); display: flex; align-items: center; justify-content: center;
+  font-size: 28px; cursor: pointer; z-index: 100; transition: all 0.3s ease;
+}
+.floating-btn:hover { transform: scale(1.1); box-shadow: 0 10px 30px rgba(67, 97, 238, 0.5); }
+
+/* Add Form Modal */
+.add-form-modal { max-width: 700px; max-height: 90vh; overflow-y: auto; }
+.form-header { padding: 20px 25px; border-bottom: 1px solid var(--border); background: linear-gradient(to right, #f8faff, #f0f5ff); }
+.form-header h3 { color: var(--secondary); margin: 0; }
+.form-body { padding: 25px; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+.form-footer { padding: 20px 25px; border-top: 1px solid var(--border); background: #f8faff; display: flex; gap: 12px; justify-content: flex-end; }
+
+.file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+.file-upload-wrapper input[type=file] { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+.file-upload-btn {
+  background: linear-gradient(to right, #eef2ff, #e8edff); color: var(--primary);
+  border: 2px dashed #dbe1ff; padding: 40px 20px; border-radius: var(--radius-md);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  transition: all 0.3s ease; text-align: center;
+}
+.file-upload-btn:hover { background: linear-gradient(to right, #e8edff, #e0e7ff); border-color: var(--primary); }
+.file-preview { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: var(--radius-sm); font-size: 14px; color: var(--text-light); }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .container { padding: 15px; padding-bottom: 80px; }
+  .floating-btn { bottom: 20px; right: 20px; width: 56px; height: 56px; font-size: 26px; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Expenses Management</h1>
+  <p>Track and manage your expenses efficiently</p>
+</div>
+
+<div class="search-container" id="searchContainer">
+  <div class="search-wrapper">
+    <div class="search-icon">🔍</div>
+    <input type="text" id="searchBox" placeholder="Search expenses name, amount, or any field..." onkeyup="filterPage1()">
+    <button class="clear-search" onclick="clearSearch()">×</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="loader" id="loader"><div class="loader-spinner"></div><p>Loading data...</p></div>
+
+  <!-- PAGE 1: List -->
+  <div class="page active" id="page1">
+    <div class="table-container">
+      <div class="table-responsive">
+        <table id="page1Table">
+          <thead><tr><th>Sr. No</th><th>Expenses Name</th><th>Amount (₹)</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="emptyState" class="empty-state" style="display: none;"><div class="empty-icon">📦</div><h3>No records found</h3><p>Try adjusting your search</p></div>
+  </div>
+
+  <!-- PAGE 2: Details -->
+  <div class="page" id="page2">
+    <div class="details-container"><h3 style="margin-bottom:20px;color:var(--secondary);">Entry Details</h3><div id="detailsContainer"></div></div>
+    <div class="button-group">
+      <button class="btn btn-primary" onclick="goToPage3()"><span>✏️</span> Edit Record</button>
+      <button class="btn btn-danger" onclick="openDeletePopup()"><span>🗑️</span> Delete</button>
+      <button class="btn btn-secondary" onclick="goToPage1()"><span>←</span> Back to List</button>
+    </div>
+  </div>
+
+  <!-- PAGE 3: Edit -->
+  <div class="page" id="page3">
+    <div class="form-container"><h3 style="margin-bottom:20px;color:var(--secondary);">Edit Record</h3>
+      <form id="editForm"><div id="editFields"></div>
+        <div class="button-group"><button type="submit" class="btn btn-primary"><span>💾</span> Save Changes</button><button type="button" class="btn btn-secondary" onclick="goToPage2()"><span>✕</span> Cancel</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<button class="floating-btn" id="addFloatingBtn" onclick="openAddFormModal()">+</button>
+
+<!-- Delete Modal -->
+<div class="modal" id="deleteModal">
+  <div class="modal-content">
+    <div class="modal-header"><div class="modal-icon" style="background: rgba(247, 37, 133, 0.1); color: var(--danger);">⚠️</div><h3>Delete Record</h3></div>
+    <div class="modal-body"><p>Are you sure you want to delete this record? This will also permanently remove the attached file from Google Drive.</p></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeDeletePopup()">Cancel</button><button class="btn btn-danger" onclick="deleteRow()">Delete</button></div>
+  </div>
+</div>
+
+<!-- Message Modal -->
+<div class="modal" id="messageModal">
+  <div class="modal-content">
+    <div class="modal-header"><div class="modal-icon" id="messageIcon" style="background: rgba(76, 201, 240, 0.1); color: var(--success);">✓</div><h3 id="messageTitle">Success</h3></div>
+    <div class="modal-body"><p id="messageText">Operation completed successfully.</p></div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeMessageModal()">OK</button></div>
+  </div>
+</div>
+
+<!-- ADD FORM MODAL (with text input for Expenses Name, file upload) -->
+<div class="modal" id="addFormModal">
+  <div class="modal-content add-form-modal">
+    <div class="form-header"><h3>Add New Expense</h3></div>
+    <form id="expenseForm">
+      <div class="form-body">
+        <div class="form-grid">
+          <!-- Sr. No is auto, but we will show a hidden field? not needed, backend handles -->
+          <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="date" required></div>
+          
+          <!-- Expenses Name: text input (not dropdown) -->
+          <div class="form-group"><label class="form-label">Expenses Name *</label><input type="text" class="form-input" id="expenseNameInput" placeholder="e.g. Office Supplies" required></div>
+          
+          <div class="form-group"><label class="form-label">Mobile Number</label><input type="tel" class="form-input" id="mobileNumber" placeholder="10 digits, starts with 6,7,8,9" pattern="[6-9][0-9]{9}" maxlength="10" title="10 digits, start with 6-9"></div>
+          <div class="form-group"><label class="form-label">Amount (₹) *</label><input type="number" class="form-input" id="amount" min="0" step="0.01" required></div>
+          
+          <div class="form-group"><label class="form-label">File (Receipt/Attachment)</label>
+            <div class="file-upload-wrapper"><input type="file" id="receiptFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"><div class="file-upload-btn"><div style="font-size:24px;">📎</div><div>Click to upload file</div><div style="font-size:12px;opacity:0.7;">PDF, JPG, PNG, DOC up to 5MB</div></div></div>
+            <div class="file-preview" id="filePreview" style="display:none;"></div>
+          </div>
+          
+          <div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="note" rows="3" style="resize:vertical;"></textarea></div>
+        </div>
+      </div>
+      <div class="form-footer"><button type="button" class="btn btn-secondary" onclick="closeAddFormModal()">Cancel</button><button type="submit" class="btn btn-primary">Submit Expense</button></div>
+    </form>
+  </div>
+</div>
+
+<script>
+/****************************
+ * CONFIG (same as original but folder used for deletion)
+ ****************************/
+const scriptUrl = "https://script.google.com/macros/s/AKfycbzSGfybKgM1y-nmBJrufGqT4TVLzF_BITUjlv9PWOTrp8qek-_NEMGNAFPv9Nrod5lTEg/exec";
+const CONFIG = {
+  spreadsheetId: "1VE6K0AaTdQLBGtMnYEtEAHCH7xcfPN-BeZoIKV8OifI",
+  dataSheet: "Expenses",
+  driveFolderId: "1mxvsMy4QmDW3znjwrdcav-VxApPH34na"    // used to locate file for deletion
+};
+
+let allData = [];
+let selectedRow = null;           // 1‑based row number in sheet
+let selectedRowData = null;
+let filteredData = [];
+let fileToDeleteInfo = null;      // store {fileId, fileName} when deleting
+
+/****************************
+ * UI helpers
+ ****************************/
+function showMessage(title, message, type = 'success') {
+  const modal = document.getElementById('messageModal');
+  const icon = document.getElementById('messageIcon');
+  const msgTitle = document.getElementById('messageTitle');
+  const msgText = document.getElementById('messageText');
+  if (type === 'success') { icon.style.background = 'rgba(76,201,240,0.1)'; icon.style.color = 'var(--success)'; icon.textContent = '✓'; }
+  else if (type === 'error') { icon.style.background = 'rgba(247,37,133,0.1)'; icon.style.color = 'var(--danger)'; icon.textContent = '✕'; }
+  else if (type === 'warning') { icon.style.background = 'rgba(255,183,77,0.1)'; icon.style.color = 'var(--warning)'; icon.textContent = '⚠️'; }
+  msgTitle.textContent = title; msgText.textContent = message; modal.style.display = 'block';
+}
+function closeMessageModal() { document.getElementById('messageModal').style.display = 'none'; }
+
+/****************************
+ * Load data
+ ****************************/
+function loadData() {
+  loader.style.display = 'flex';
+  fetch(`${scriptUrl}?action=getAllData&spreadsheetId=${CONFIG.spreadsheetId}&dataSheet=${CONFIG.dataSheet}`)
+    .then(res => res.json())
+    .then(data => { 
+      allData = data;                         // includes header row
+      filteredData = allData.slice(1);         // exclude header
+      renderPage1();
+      loader.style.display = 'none';
+    })
+    .catch(err => {
+      loader.style.display = 'none';
+      showMessage('Connection Error', 'Failed to load data.', 'error');
+      console.error(err);
+    });
+}
+
+/****************************
+ * PAGE 1 render
+ ****************************/
+function renderPage1() {
+  const tbody = document.querySelector("#page1Table tbody");
+  tbody.innerHTML = "";
+  
+  filteredData.forEach((row, idx) => {
+    // original index in allData (1‑based row in sheet = allData index)
+    const originalIndex = allData.findIndex(r => r === row);  // 0‑based, but row 0 is header
+    
+    // Expected columns: 0: Sr.No (auto), 1: Date, 2: Expenses Name, 3: Mobile, 4: Amount, 5: File, 6: Note
+    const srNoDisplay = idx + 1;               // visual serial no
+    const expName = row[2] || 'N/A';
+    const amountVal = parseFloat(row[4]) || 0;
+    let dateVal = row[1] || '-';
+    if (dateVal && dateVal !== '-') {
+      try { dateVal = new Date(dateVal).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }); } catch (e) {}
+    }
+    const formattedAmount = '₹' + new Intl.NumberFormat('en-IN', { maximumFractionDigits:0 }).format(amountVal);
+    
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${srNoDisplay}</td><td>${expName}</td><td>${formattedAmount}</td><td>${dateVal}</td>
+      <td><button class="btn btn-sm btn-success" onclick="showDetails(${originalIndex})"><span>👁️</span> View</button></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('emptyState').style.display = filteredData.length === 0 ? 'block' : 'none';
+}
+
+function filterPage1() {
+  const q = searchBox.value.toLowerCase().trim();
+  document.querySelector('.clear-search').style.display = q.length ? 'block' : 'none';
+  filteredData = q === '' ? allData.slice(1) : allData.slice(1).filter(row => row.some(cell => String(cell).toLowerCase().includes(q)));
+  renderPage1();
+}
+function clearSearch() { searchBox.value = ''; filterPage1(); }
+
+/****************************
+ * PAGE 2 details
+ ****************************/
+function showDetails(index) {
+  selectedRow = index;                // 0‑based index in allData (header at 0, so index=1 -> row 2 in sheet)
+  selectedRowData = allData[index];
+  
+  const container = document.getElementById('detailsContainer');
+  container.innerHTML = "";
+  const headers = allData[0] || ["Sr. No","Date","Expenses Name","Mobile","Amount","File","Note"];
+  
+  headers.forEach((h, i) => {
+    const div = document.createElement('div'); div.className = 'detail-card';
+    const label = document.createElement('div'); label.className = 'detail-label'; label.textContent = h;
+    const valueDiv = document.createElement('div'); valueDiv.className = 'detail-value';
+    let cellValue = selectedRowData[i] || '-';
+    if (h.toLowerCase().includes('date') && cellValue !== '-') {
+      try { cellValue = new Date(cellValue).toLocaleDateString('en-IN', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }); } catch (e) {}
+    }
+    if (h.toLowerCase().includes('amount') && cellValue !== '-') {
+      const num = parseFloat(cellValue); if (!isNaN(num)) cellValue = '₹' + new Intl.NumberFormat('en-IN', { minimumFractionDigits:0, maximumFractionDigits:2 }).format(num);
+    }
+    valueDiv.textContent = cellValue;
+    div.appendChild(label); div.appendChild(valueDiv);
+    
+    // if it's a file column and contains http (drive link)
+    if ((h.toLowerCase().includes('file') || h.toLowerCase().includes('receipt')) && String(selectedRowData[i] || '').startsWith('http')) {
+      const link = document.createElement('a'); link.href = selectedRowData[i]; link.target = '_blank'; link.className = 'view-file-btn'; link.innerHTML = '<span>📄</span> View File';
+      div.appendChild(link);
+    }
+    container.appendChild(div);
+  });
+  showPage(2);
+}
+
+/****************************
+ * PAGE 3 edit (simplified, keep original but adjust Expenses Name as text)
+ ****************************/
+function goToPage3() {
+  document.getElementById('editFields').innerHTML = "";
+  const headers = allData[0] || ["Sr. No","Date","Expenses Name","Mobile","Amount","File","Note"];
+  selectedRowData.forEach((value, i) => {
+    const fg = document.createElement('div'); fg.className = 'form-group';
+    const label = document.createElement('label'); label.className = 'form-label'; label.textContent = headers[i];
+    fg.appendChild(label);
+    const headerLow = headers[i].toLowerCase();
+    let input;
+    if (headerLow.includes('sr. no') || headerLow.includes('file')) {
+      input = document.createElement('input'); input.type = 'text'; input.className = 'form-input'; input.value = value || ''; input.readOnly = true;
+    } else if (headerLow.includes('amount')) {
+      input = document.createElement('input'); input.type = 'number'; input.className = 'form-input'; input.value = value || ''; input.step = '0.01';
+    } else {
+      input = document.createElement('input'); input.type = 'text'; input.className = 'form-input'; input.value = value || '';
+    }
+    input.id = `edit-field-${i}`; input.name = headers[i];
+    fg.appendChild(input);
+    document.getElementById('editFields').appendChild(fg);
+  });
+  showPage(3);
+}
+
+document.getElementById("editForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const inputs = document.querySelectorAll('#editFields input');
+  const updatedRow = Array.from(inputs).map(i => i.value);
+  loader.style.display = 'flex';
+  fetch(scriptUrl, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "update",
+      spreadsheetId: CONFIG.spreadsheetId,
+      dataSheet: CONFIG.dataSheet,
+      rowNumber: selectedRow + 1,   // 1‑based for backend
+      updatedRow: updatedRow
+    })
+  }).then(res => res.json()).then(() => {
+    loader.style.display = 'none'; showMessage('Success','Record updated','success');
+    loadData();
+    setTimeout(() => showDetails(selectedRow), 500);
+  }).catch(err => { loader.style.display='none'; showMessage('Update Failed','Try again','error'); });
+});
+
+/****************************
+ * ADD FORM (text input for Expenses Name, Sr.No auto)
+ ****************************/
+function openAddFormModal() {
+  document.getElementById('date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('expenseNameInput').value = '';
+  document.getElementById('mobileNumber').value = '';
+  document.getElementById('amount').value = '';
+  document.getElementById('note').value = '';
+  document.getElementById('receiptFile').value = '';
+  document.getElementById('filePreview').style.display = 'none';
+  document.getElementById('addFormModal').style.display = 'block';
+}
+function closeAddFormModal() { document.getElementById('addFormModal').style.display = 'none'; }
+
+document.getElementById('receiptFile').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  const preview = document.getElementById('filePreview');
+  if (file) { preview.textContent = `Selected: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`; preview.style.display = 'block'; }
+  else preview.style.display = 'none';
+});
+
+document.getElementById('expenseForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const mobile = document.getElementById('mobileNumber').value;
+  if (mobile && !/^[6-9][0-9]{9}$/.test(mobile)) {
+    showMessage('Invalid Mobile','Must be 10 digits starting with 6-9','error'); return;
+  }
+  const expName = document.getElementById('expenseNameInput').value.trim();
+  if (!expName) { showMessage('Required','Expenses name is required','warning'); return; }
+  const amount = document.getElementById('amount').value;
+  if (!amount || parseFloat(amount)<=0) { showMessage('Amount Required','Enter a valid amount','warning'); return; }
+
+  const fileInput = document.getElementById('receiptFile');
+  const file = fileInput.files[0];
+  
+  // rowData without Sr. No (backend will assign next serial)
+  const rowData = [
+    '',   // Sr. No placeholder – will be filled by backend (auto increment)
+    document.getElementById('date').value,
+    expName,
+    mobile || '',
+    amount,
+    '__RECEIPT__',   // file url placeholder
+    document.getElementById('note').value
+  ];
+
+  const payload = {
+    action: "insert",
+    spreadsheetId: CONFIG.spreadsheetId,
+    dataSheet: CONFIG.dataSheet,
+    driveFolderId: CONFIG.driveFolderId,
+    rowData: rowData
+  };
+
+  loader.style.display = 'flex';
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      payload.receipt = { name: file.name, type: file.type, data: ev.target.result.split(',')[1] };
+      submitAdd(payload);
+    };
+    reader.readAsDataURL(file);
+  } else submitAdd(payload);
+});
+
+function submitAdd(payload) {
+  fetch(scriptUrl, { method:"POST", body:JSON.stringify(payload) })
+    .then(res=>res.json()).then(res=>{
+      loader.style.display='none';
+      if(res.status==='success') { showMessage('Success','Expense added','success'); closeAddFormModal(); loadData(); }
+      else showMessage('Submission Failed', res.message || 'Unknown error', 'error');
+    }).catch(err=>{ loader.style.display='none'; showMessage('Connection error','','error'); });
+}
+
+/****************************
+ * DELETE with file removal
+ ****************************/
+function openDeletePopup() {
+  // before opening, store file ID if present (extract from file url column index 5)
+  const fileUrl = selectedRowData[5] || '';
+  let fileId = null;
+  if (fileUrl.includes('/d/')) {
+    const match = fileUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) fileId = match[1];
+  }
+  fileToDeleteInfo = { fileId: fileId, fileName: selectedRowData[2] }; // store expense name or fileId
+  document.getElementById('deleteModal').style.display = 'block';
+}
+function closeDeletePopup() { document.getElementById('deleteModal').style.display = 'none'; }
+
+function deleteRow() {
+  closeDeletePopup();
+  loader.style.display = 'flex';
+  
+  // prepare delete payload: row number (1‑based) and optionally fileId
+  const payload = {
+    action: "delete",
+    spreadsheetId: CONFIG.spreadsheetId,
+    dataSheet: CONFIG.dataSheet,
+    rowNumber: selectedRow + 1,       // convert to 1‑based
+    driveFolderId: CONFIG.driveFolderId,
+    fileId: fileToDeleteInfo?.fileId || null
+  };
+
+  fetch(scriptUrl, { method:"POST", body:JSON.stringify(payload) })
+    .then(res => res.json())
+    .then(res => {
+      loader.style.display = 'none';
+      if (res.status === 'success') {
+        showMessage('Success', 'Record and attached file removed.', 'success');
+        loadData();
+        showPage(1);
+      } else {
+        showMessage('Delete Failed', res.message || 'Could not delete', 'error');
+      }
+    })
+    .catch(err => {
+      loader.style.display = 'none';
+      showMessage('Delete Failed', 'Network error', 'error');
+    });
+}
+
+/****************************
+ * Navigation
+ ****************************/
+function showPage(n) {
+  document.getElementById('page1').classList.remove('active');
+  document.getElementById('page2').classList.remove('active');
+  document.getElementById('page3').classList.remove('active');
+  document.getElementById('searchContainer').style.display = n===1 ? 'block' : 'none';
+  if (n===1) { document.getElementById('page1').classList.add('active'); filterPage1(); }
+  else if (n===2) document.getElementById('page2').classList.add('active');
+  else if (n===3) document.getElementById('page3').classList.add('active');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+function goToPage1() { showPage(1); }
+function goToPage2() { selectedRowData ? showPage(2) : (showMessage('Error','No record selected','warning'), showPage(1)); }
+
+/****************************
+ * Init
+ ****************************/
+document.addEventListener('DOMContentLoaded', function() {
+  loadData();
+  window.addEventListener('click', function(event) {
+    if (event.target === document.getElementById('deleteModal')) closeDeletePopup();
+    if (event.target === document.getElementById('messageModal')) closeMessageModal();
+    if (event.target === document.getElementById('addFormModal')) closeAddFormModal();
+  });
+});
+</script>
+</body>
+</html>
