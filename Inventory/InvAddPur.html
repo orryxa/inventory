@@ -1336,16 +1336,28 @@ function renderProductList(items) {
         return;
     }
     
-    items.forEach((r, index)=>{
+    // Filter only In Stock products
+    const inStockItems = items.filter(item => {
+        const stockStatus = (item["Stock"]||"").toLowerCase();
+        return !stockStatus.includes("out of stock");
+    });
+    
+    if(inStockItems.length === 0){
+        l.innerHTML=`<div class="empty-state"><div class="empty-icon"><i class="fas fa-box-open"></i></div><div>No "In Stock" products available for sale</div></div>`;
+        return;
+    }
+    
+    inStockItems.forEach((r, index)=>{
+        const originalIndex = data.indexOf(r);
         const productName = r["Product Name"] || "Unnamed Product";
         const skuCode = r["SKU Code"] || "N/A";
         const stockStatus = (r["Stock"]||"").toLowerCase();
-        const stockClass = stockStatus.includes("out") ? "stock-out" : "stock-in";
-        const stockText = stockStatus.includes("out") ? "Out of Stock" : "In Stock";
+        const stockClass = "stock-in";
+        const stockText = "In Stock";
         
         const item = document.createElement('div');
         item.className = 'product-item';
-        item.onclick = () => pick(index);
+        item.onclick = () => pick(originalIndex);
         
         item.innerHTML = `
             <div class="product-icon">
