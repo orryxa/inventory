@@ -1462,7 +1462,7 @@ input:checked + .slider:before {
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <div class="sidebar-title">Navigation</div>
+    <div class="sidebar-title">Stock Management</div>
     <div class="sidebar-subtitle">Manage your inventory efficiently</div>
   </div>
   
@@ -1474,16 +1474,16 @@ input:checked + .slider:before {
       <div class="nav-text">Dashboard</div>
     </div>
 	
-	<div class="nav-item" onclick="loadPage('Update', 'Inventory/InventoryManagement.html')">
+	<div class="nav-item" onclick="loadPage('Add Inventory', 'Inventory/InventoryManagement.html')">
       <div class="nav-icon">
         <i class="fas fa-sync-alt"></i>
       </div>
       <div class="nav-text">Add Inventory</div>
     </div>
 	
-	<div class="nav-item" onclick="loadPage('Update', 'Other Activity/expenses.html')">
+	<div class="nav-item" onclick="loadPage('Add Expenses', 'Other Activity/expenses.html')">
       <div class="nav-icon">
-        <i class="fas fa-sync-alt"></i>
+        <i class="fa-solid fa-money-bill-1-wave"></i>
       </div>
       <div class="nav-text">Add Expenses</div>
     </div>
@@ -1521,6 +1521,13 @@ input:checked + .slider:before {
         <i class="fas fa-receipt"></i>
       </div>
       <div class="nav-text">Receipt</div>
+    </div>
+	
+	<div class="nav-item" onclick="loadPage('Tax Invoice', 'Tax Invoice/TaxDetails.html')">
+      <div class="nav-icon">
+        <i class="fa-solid fa-file-invoice"></i>
+      </div>
+      <div class="nav-text">Tax Invoice</div>
     </div>
     
     <div class="nav-item" onclick="loadPage('ShopDeck', 'Other Activity/shopdeckForm.html')">
