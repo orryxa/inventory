@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Billing contacts · enhanced form</title>
+  <!-- modern font & icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f1f9ff 0%, #e6f2fa 100%);
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      padding: 2rem 1.5rem 5rem 1.5rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .dashboard-container {
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    /* header with icon and total */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .page-header h2 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #0b2a4e;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .page-header h2 i {
+      background: #1b7b8f;
+      color: white;
+      padding: 0.8rem;
+      border-radius: 1.8rem;
+      font-size: 1.6rem;
+      box-shadow: 0 8px 18px -6px #0f4c5e;
+    }
+
+    .badge-total {
+      background: white;
+      border-radius: 40px;
+      padding: 0.4rem 1.4rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #1b4b5e;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid rgba(27,123,143,0.2);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* --- SEARCH AREA (only search bar) --- */
+    .search-panel {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(4px);
+      padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+      border-radius: 4rem;
+      box-shadow: 0 8px 18px -12px #105568;
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+
+    .search-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: white;
+      border-radius: 3rem;
+      padding: 0.2rem 0.2rem 0.2rem 1.2rem;
+      border: 1.5px solid #cbe2e9;
+      transition: 0.2s;
+    }
+    .search-wrapper:focus-within {
+      border-color: #1b7b8f;
+      box-shadow: 0 0 0 3px rgba(27,123,143,0.15);
+    }
+    .search-wrapper i {
+      color: #1b7b8f;
+      font-size: 1rem;
+    }
+    .search-wrapper input {
+      width: 100%;
+      padding: 0.8rem 0.8rem 0.8rem 0.5rem;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      background: transparent;
+    }
+
+    /* --- TABLE --- */
+    .table-wrapper {
+      background: #ffffffd9;
+      backdrop-filter: blur(2px);
+      border-radius: 2.2rem;
+      box-shadow: 0 25px 45px -18px #2b5f74, 0 10px 20px -8px rgba(0,30,40,0.15);
+      border: 1px solid rgba(255,255,255,0.6);
+      position: relative;
+      min-height: 200px;
+    }
+
+    /* loading overlay inside table wrapper */
+    .table-loader {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(2px);
+      border-radius: 2.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      font-size: 1.4rem;
+      color: #1b7b8f;
+      gap: 0.8rem;
+      flex-direction: column;
+    }
+    .table-loader i { font-size: 2.5rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1rem;
+      border-radius: 1.8rem;
+      overflow: hidden;
+    }
+
+    th {
+      background: #1b7b8f;
+      color: white;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      padding: 1.2rem 0.8rem;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 1.2rem 0.8rem;
+      border-bottom: 1px solid #daeff6;
+      color: #124052;
+      font-weight: 450;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: #f2fbfe;
+    }
+
+    .action-view {
+      background: transparent;
+      border: 1.5px solid #1b7b8f;
+      color: #1b7b8f;
+      font-weight: 600;
+      padding: 0.5rem 1.2rem;
+      border-radius: 2.5rem;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .action-view:hover {
+      background: #1b7b8f;
+      color: white;
+      transform: scale(1.02);
+    }
+
+    /* --- FLOATING ACTION BUTTON (➕) --- */
+    .fab {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #1b7b8f;
+      color: white;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      box-shadow: 0 15px 30px -8px #0b4b60, 0 0 0 2px rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      z-index: 900;
+    }
+    .fab:hover {
+      background: #0f6377;
+      transform: scale(1.08) rotate(90deg);
+    }
+    @media (max-width: 550px) {
+      .fab { width: 56px; height: 56px; font-size: 2.2rem; bottom: 1.5rem; right: 1.5rem; }
+    }
+
+    /* --- CUSTOM TOAST/ALERT --- */
+    .toast-container {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      max-width: 350px;
+    }
+    .toast {
+      background: white;
+      border-left: 6px solid #1b7b8f;
+      border-radius: 1.5rem;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 20px 35px -10px #0b3b47;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-weight: 500;
+      color: #124052;
+      animation: slideIn 0.2s ease;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+    .toast.success { border-left-color: #2e9a6e; }
+    .toast.error { border-left-color: #d34f4f; }
+    .toast i { font-size: 1.4rem; }
+    .toast.success i { color: #2e9a6e; }
+    .toast.error i { color: #d34f4f; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ===== MAIN MODAL (edit/view) ===== */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(10, 40, 50, 0.7);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background: #ffffffec;
+      width: 100%;
+      max-width: 550px;
+      max-height: 85vh;
+      overflow-y: auto;
+      border-radius: 2.5rem;
+      box-shadow: 0 40px 70px -15px #07323f, 0 0 0 1px rgba(255,255,255,0.5);
+      padding: 2rem 1.8rem;
+      animation: modalReveal 0.25s ease-out;
+      position: relative;
+      
+      /* hide scrollbar but keep scrolling */
+      scrollbar-width: none;  /* Firefox */
+      -ms-overflow-style: none;  /* IE/Edge */
+    }
+    .modal-content::-webkit-scrollbar {
+      display: none;  /* Chrome/Safari/Opera */
+    }
+
+    .modal-spinner {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(2px);
+      border-radius: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1100;
+      font-size: 2rem;
+      color: #1b7b8f;
+      gap: 1rem;
+      flex-direction: column;
+    }
+
+    @keyframes modalReveal {
+      0% { opacity: 0; transform: scale(0.92) translateY(12px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-content h3 {
+      font-size: 1.9rem;
+      font-weight: 600;
+      color: #0b2a4e;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      border-bottom: 2px solid #ceeaf2;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ===== ENHANCED editForm with icons & better styling ===== */
+    #editForm {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .field-group label {
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      color: #1b5b6e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .field-group label i {
+      font-size: 0.9rem;
+      background: #1b7b8f20;
+      padding: 4px;
+      border-radius: 50%;
+      color: #1b7b8f;
+    }
+    .field-group input {
+      padding: 0.9rem 1.2rem;
+      border: 1.5px solid #cbe2e9;
+      border-radius: 1.5rem;
+      outline: none;
+      transition: 0.15s;
+      background: white;
+    }
+    .field-group input:focus {
+      border-color: #1b7b8f;
+      box-shadow: 0 0 0 4px rgba(27,123,143,0.15);
+    }
+    .field-group input[readonly] {
+      background: linear-gradient(135deg, #f0f9ff, #e6f2fa);
+      border-color: #b8d9e5;
+      font-weight: 500;
+      color: #124052;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.8rem;
+      margin-top: 1.2rem;
+    }
+
+    .btn {
+      border: none;
+      padding: 0.9rem 0.5rem;
+      border-radius: 2.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+    .btn i { font-size: 1rem; }
+
+    .btn-update { background: #1b7b8f; color: white; }
+    .btn-delete { background: #d34f4f; color: white; }
+    .btn-close { background: #435e67; color: white; }
+
+    .btn-update:hover { background: #126b7e; }
+    .btn-delete:hover { background: #b83e3e; }
+    .btn-close:hover { background: #2e4a55; }
+
+    @media (max-width: 450px) {
+      .modal-actions { grid-template-columns: 1fr; }
+    }
+
+    .dup-hint {
+      font-size: 0.75rem;
+      margin-top: 0.2rem;
+      color: #b15656;
+      background: #ffefed;
+      padding: 0.2rem 1rem;
+      border-radius: 2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-left: 3px solid #c75b5b;
+    }
+
+    /* --- ✅ SIMPLE & ATTRACTIVE DELETE CONFIRM (refined) --- */
+    .confirm-modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(10, 40, 50, 0.6);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1rem;
+    }
+
+    .confirm-content {
+      background: white;
+      max-width: 360px;
+      width: 100%;
+      border-radius: 2rem;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 30px 50px -20px #021016;
+      text-align: center;
+      animation: modalReveal 0.2s;
+    }
+
+    .confirm-content i {
+      font-size: 2.2rem;
+      color: #d34f4f;
+      margin-bottom: 0.75rem;
+      opacity: 0.9;
+    }
+
+    .confirm-content p {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #0b2a4e;
+      margin-bottom: 0.2rem;
+    }
+
+    .confirm-content .warning-text {
+      color: #5f7d8a;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: center;
+    }
+
+    .confirm-btn {
+      border: none;
+      border-radius: 2rem;
+      padding: 0.7rem 1.2rem;
+      font-weight: 500;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: 0.2s;
+      flex: 1;
+      min-width: 110px;
+    }
+
+    .btn-confirm-yes {
+      background: #d34f4f;
+      color: white;
+    }
+    .btn-confirm-yes:hover { 
+      background: #b83e3e; 
+      transform: scale(1.02);
+    }
+
+    .btn-confirm-no {
+      background: #eef3f7;
+      color: #2a5f72;
+      border: 1px solid #d0e2eb;
+    }
+    .btn-confirm-no:hover { 
+      background: #dde9f0; 
+    }
+
+    .confirm-btn i {
+      font-size: 0.9rem;
+      margin-right: 0.2rem;
+    }
+
+    @media (max-width: 400px) {
+      .confirm-actions {
+        flex-direction: column;
+      }
+      .confirm-btn {
+        width: 100%;
+      }
+    }
+
+    /* ===== ENHANCED ADD PARTY MODAL (attractive, X close, hidden scrollbar) ===== */
+    #addPartyModal .modal-content {
+      max-width: 650px;
+      background: linear-gradient(145deg, #ffffff 0%, #f8fcff 100%);
+      padding: 2.5rem 2.2rem;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.8);
+      
+      /* Hide scrollbar but keep scroll functionality */
+      scrollbar-width: none;  /* Firefox */
+      -ms-overflow-style: none;  /* IE/Edge */
+    }
+    
+    /* Hide scrollbar for Chrome/Safari/Opera */
+    #addPartyModal .modal-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Elegant close button (X) at top right */
+    .modal-close-btn {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.5rem;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(27, 123, 143, 0.1);
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1b7b8f;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 20;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+
+    .modal-close-btn:hover {
+      background: #d34f4f;
+      color: white;
+      transform: rotate(180deg) scale(1.15);
+      box-shadow: 0 10px 20px -5px rgba(211, 79, 79, 0.5);
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    /* Header styling more attractive */
+    #addPartyModal h3 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      background: linear-gradient(145deg, #0b2a4e, #1b7b8f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 2rem;
+      padding-bottom: 1.2rem;
+      border-bottom: 4px solid transparent;
+      border-image: linear-gradient(90deg, #1b7b8f, #67d1e8, #1b7b8f);
+      border-image-slice: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      letter-spacing: -0.02em;
+    }
+
+    #addPartyModal h3 i {
+      background: linear-gradient(135deg, #1b7b8f, #2b9bb3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 2.5rem;
+    }
+
+    /* Enhanced field styling */
+    #addPartyModal .field {
+      margin-bottom: 1.5rem;
+      transform: translateY(0);
+      transition: all 0.3s ease;
+    }
+
+    #addPartyModal .field:hover {
+      transform: translateY(-2px);
+    }
+
+    #addPartyModal .field label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1b5b6e;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #addPartyModal .field label i {
+      color: #1b7b8f;
+      font-size: 1rem;
+      background: rgba(27, 123, 143, 0.1);
+      padding: 0.3rem;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #addPartyModal .field input {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #e3eef2;
+      border-radius: 16px;
+      padding: 1rem 1.4rem;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+      width: 100%;
+    }
+
+    #addPartyModal .field input:focus {
+      border-color: #1b7b8f;
+      box-shadow: 0 8px 20px -10px #1b7b8f, 0 0 0 4px rgba(27, 123, 143, 0.1);
+      background: white;
+      transform: scale(1.01);
+    }
+
+    #addPartyModal .field input:read-only {
+      background: linear-gradient(135deg, #f0f9ff, #e6f2fa);
+      border-color: #b8d9e5;
+      color: #0b2a4e;
+      font-weight: 600;
+    }
+
+    /* Enhanced hint styling */
+    #addPartyModal .field .hint {
+      font-size: 0.8rem;
+      padding: 0.4rem 1.2rem;
+      border-radius: 30px;
+      margin-top: 0.5rem;
+      animation: slideDown 0.3s ease;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Enhanced submit button */
+    #addPartyModal .btn-submit {
+      background: linear-gradient(135deg, #1b7b8f, #2b9bb3);
+      border: none;
+      border-radius: 40px;
+      padding: 1.2rem 2rem;
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      width: 100%;
+      margin-top: 2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 25px -8px rgba(27, 123, 143, 0.4);
+    }
+
+    #addPartyModal .btn-submit::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    #addPartyModal .btn-submit:hover::before {
+      left: 100%;
+    }
+
+    #addPartyModal .btn-submit:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 30px -8px #0b4b60;
+    }
+
+    #addPartyModal .btn-submit i {
+      transition: transform 0.3s ease;
+    }
+
+    #addPartyModal .btn-submit:hover:not(:disabled) i {
+      transform: translateX(8px) rotate(0deg);
+    }
+
+    /* Enhanced spinner */
+    #addPartyModal .spinner {
+      background: linear-gradient(135deg, #f0f9ff, #e6f7ff);
+      border-radius: 40px;
+      padding: 1rem;
+      margin-top: 1.2rem;
+      color: #1b7b8f;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(27, 123, 143, 0.1);
+      animation: pulse 1.5s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* Enhanced success message */
+    #addPartyModal .success-msg {
+      background: linear-gradient(135deg, #e5f5e8, #d4f0dc);
+      border-radius: 40px;
+      padding: 1rem 1.5rem;
+      margin-top: 1.2rem;
+      color: #0e6044;
+      font-weight: 600;
+      border-left: 4px solid #1e9c6e;
+      box-shadow: 0 4px 15px rgba(30, 156, 110, 0.2);
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Floating particles background effect */
+    #addPartyModal .modal-content::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(27, 123, 143, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    #addPartyModal .modal-content::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: -10px;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(75, 181, 201, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Ensure form stays above background effects */
+    #addPartyModal form {
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 550px) {
+      #addPartyModal .modal-content {
+        padding: 2rem 1.5rem;
+      }
+      #addPartyModal h3 {
+        font-size: 2rem;
+      }
+      .modal-close-btn {
+        top: 0.8rem;
+        right: 1rem;
+        width: 36px;
+        height: 36px;
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard-container">
+  <div class="page-header">
+    <h2><i class="fas fa-address-book"></i> billing contacts</h2>
+    <span class="badge-total" id="totalBadge">loading...</span>
+  </div>
+  <div class="search-panel">
+    <div class="search-wrapper">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search by billing name or company...">
+    </div>
+  </div>
+  <div class="table-wrapper">
+    <div id="tableLoader" class="table-loader" style="display: none;"><i class="fas fa-circle-notch fa-spin"></i><span>loading records...</span></div>
+    <table id="table">
+      <thead><tr><th>Sr No</th><th>Billing Name</th><th>Mobile</th><th>Action</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+<button class="fab" id="fabAdd"><i class="fas fa-plus"></i></button>
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- EDIT MODAL (full details) -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div id="modalSpinner" class="modal-spinner" style="display: none;"><i class="fas fa-circle-notch fa-spin"></i><span>processing...</span></div>
+    <h3><i class="fas fa-pen-to-square"></i> full details</h3>
+    <form id="editForm"></form>
+    <div class="modal-actions">
+      <button class="btn btn-update" onclick="updateRecord()"><i class="fas fa-save"></i> Update</button>
+      <button class="btn btn-delete" onclick="showDeleteConfirm()"><i class="fas fa-trash"></i> Delete</button>
+      <button class="btn btn-close" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL (attractive) -->
+<div class="modal" id="addPartyModal">
+  <div class="modal-content">
+    <div class="modal-close-btn" onclick="closeAddPartyModal()"><i class="fas fa-times"></i></div>
+    <div id="addModalSpinner" class="modal-spinner" style="display: none;"><i class="fas fa-circle-notch fa-spin"></i><span>saving...</span></div>
+    <h3><i class="fas fa-user-plus"></i> Add contact</h3>
+    <form id="addPartyForm" novalidate>
+      <!-- fields exactly as requested: Sr No, Billing Name, Mobile Number, GST Number, Email Id, Address, City, Pincode -->
+      <div class="field"><label><i class="fas fa-hashtag"></i> Sr No</label><input type="text" name="Sr No" id="srno" readonly placeholder="auto"></div>
+      <div class="field"><label><i class="fas fa-user"></i> Billing Name *</label><input type="text" name="Billing Name" id="billingName" placeholder="e.g. Acme Corp" required></div>
+      <div class="field"><label><i class="fas fa-mobile-alt"></i> Mobile Number *</label><input type="tel" name="Mobile Number" id="mobile" required maxlength="10" placeholder="9876543210" inputmode="numeric"><div id="mobileHint" class="hint" style="display: none;"></div></div>
+      <div class="field"><label><i class="fas fa-credit-card"></i> GST Number *</label><input type="text" name="GST Number" id="gst" required maxlength="15" placeholder="22AAAAA0000A1Z5"></div>
+      <div class="field"><label><i class="fas fa-envelope"></i> Email Id *</label><input type="email" name="Email Id" id="email" required placeholder="contact@example.com"><div id="emailHint" class="hint" style="display: none;"></div></div>
+      <div class="field"><label><i class="fas fa-map-pin"></i> Address *</label><input type="text" name="Address" placeholder="Street, locality" required></div>
+      <div class="field"><label><i class="fas fa-city"></i> City *</label><input type="text" name="City" placeholder="Mumbai" required></div>
+      <div class="field"><label><i class="fas fa-mail-bulk"></i> Pincode *</label><input type="text" name="Pincode" id="pin" required maxlength="6" placeholder="400001" inputmode="numeric"></div>
+      <button type="submit" class="btn-submit" id="submitBtn"><span>submit entry</span><i class="fas fa-arrow-right"></i></button>
+      <div class="spinner" id="spin" style="display: none;"><i class="fas fa-circle-notch fa-spin"></i> saving record...</div>
+      <div class="success-msg" id="msg" style="display: none;"></div>
+    </form>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="confirm-modal" id="deleteConfirmModal">
+  <div class="confirm-content">
+    <i class="fas fa-trash-alt"></i><p>Delete record?</p><div class="warning-text">This cannot be undone.</div>
+    <div class="confirm-actions"><button class="confirm-btn btn-confirm-yes" id="confirmDeleteBtn"><i class="fas fa-check"></i> Yes, delete</button><button class="confirm-btn btn-confirm-no" onclick="closeDeleteConfirm()"><i class="fas fa-times"></i> Cancel</button></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const url = "https://script.google.com/macros/s/AKfycbxl4wjANSRagPaOEd5tglN-4t-V5YDD-9GeP2reO-AlifxtAAaRS-1-RVP_3Cvybr1LTw/exec";
+  const sheetId = "1nDGtN6CyFdrPONDnZ52pbdgVOJ8UTdxsbZOeFyeTiuE";
+  const sheetName = "BillTo_Party_Name";  // same sheet, but fields adapted
+
+  let globalData = [];
+  let filteredData = [];
+  let selectedRow = null;
+  let existingKeys = new Set(); // store "Billing Name" + "Mobile" as simple unique? We'll keep existingBillingNames for duplicate check
+
+  // DOM elements
+  const tbody = document.querySelector("#table tbody");
+  const modal = document.getElementById("modal");
+  const editForm = document.getElementById("editForm");
+  const totalBadge = document.getElementById("totalBadge");
+  const searchInput = document.getElementById("searchInput");
+  const tableLoader = document.getElementById("tableLoader");
+  const modalSpinner = document.getElementById("modalSpinner");
+  const toastContainer = document.getElementById("toastContainer");
+  const deleteConfirmModal = document.getElementById("deleteConfirmModal");
+  const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+  const addPartyModal = document.getElementById("addPartyModal");
+  const addModalSpinner = document.getElementById("addModalSpinner");
+  const addPartyForm = document.getElementById("addPartyForm");
+  const srnoInput = document.getElementById('srno');
+  const billingNameInput = document.getElementById('billingName');
+  const mobileInput = document.getElementById('mobile');
+  const mobileHint = document.getElementById('mobileHint');
+  const emailInput = document.getElementById('email');
+  const emailHint = document.getElementById('emailHint');
+  const gstInput = document.getElementById('gst');
+  const pinInput = document.getElementById('pin');
+  const spinDiv = document.getElementById('spin');
+  const msgDiv = document.getElementById('msg');
+  const submitBtn = document.getElementById('submitBtn');
+  const fabAdd = document.getElementById('fabAdd');
+
+  let existingBillingNames = new Set(); // for duplicate check (billing name)
+  let isDuplicateCheckDone = false;
+  let billingNameValid = false;
+
+  // helpers
+  window.showToast = (msg, type = 'success', dur = 3000) => {
+    const t = document.createElement('div'); t.className = `toast ${type}`;
+    t.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'exclamation-circle'}"></i> ${msg}`;
+    toastContainer.appendChild(t); setTimeout(() => t.remove(), dur);
+  };
+  function setTableLoading(show) { tableLoader.style.display = show ? 'flex' : 'none'; }
+  function setModalLoading(show) { modalSpinner.style.display = show ? 'flex' : 'none'; }
+  function setAddModalLoading(show) { addModalSpinner.style.display = show ? 'flex' : 'none'; }
+
+  // Load existing billing names for duplicate check
+  function loadExistingBillingNames() {
+    fetch(`${url}?spreadsheetId=${sheetId}&sheetName=${sheetName}`)
+      .then(res => res.json())
+      .then(res => {
+        const rows = Array.isArray(res.data) ? res.data : [];
+        const names = rows.map(r => r["Billing Name"] ? r["Billing Name"].toString().trim().toLowerCase() : '').filter(n=>n);
+        existingBillingNames = new Set(names);
+        isDuplicateCheckDone = true;
+        srnoInput.value = rows.length + 1;
+        if (billingNameInput.value.trim()) validateBillingName(billingNameInput.value.trim());
+      })
+      .catch(() => { isDuplicateCheckDone = true; });
+  }
+
+  function validateBillingName(raw) {
+    if (!isDuplicateCheckDone) return;
+    const trimmed = raw.trim();
+    if (!trimmed) { billingNameValid = false; mobileHint.style.display = 'none'; return; }
+    if (existingBillingNames.has(trimmed.toLowerCase())) {
+      mobileHint.className = 'hint error'; mobileHint.innerHTML = '<i class="fas fa-exclamation-circle"></i> Billing name already exists'; mobileHint.style.display = 'inline-flex'; billingNameValid = false;
+    } else {
+      mobileHint.className = 'hint success'; mobileHint.innerHTML = '<i class="fas fa-check-circle"></i> Name available'; mobileHint.style.display = 'inline-flex'; billingNameValid = true;
+    }
+  }
+
+  // Mobile validation: 10 digits, start with 6-9
+  function validateMobile(val) {
+    const clean = val.replace(/\D/g, '');
+    if (clean.length === 10 && /^[6-9]/.test(clean)) return true;
+    return false;
+  }
+
+  // Email validation (simple)
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  // Load data
+  function loadData() {
+    setTableLoading(true);
+    fetch(`${url}?spreadsheetId=${sheetId}&sheetName=${sheetName}`)
+      .then(res => res.json())
+      .then(res => {
+        globalData = Array.isArray(res.data) ? res.data : [];
+        filteredData = [...globalData];
+        renderTable(filteredData);
+        totalBadge.innerText = `${globalData.length} total`;
+        setTableLoading(false);
+        const names = globalData.map(r => r["Billing Name"] ? r["Billing Name"].toString().trim().toLowerCase() : '').filter(n=>n);
+        existingBillingNames = new Set(names);
+        isDuplicateCheckDone = true;
+      })
+      .catch(() => {
+        tbody.innerHTML = `<tr><td colspan="4" style="padding:2rem; text-align:center;">⚠️ error loading</td></tr>`;
+        setTableLoading(false);
+        showToast('Failed to load', 'error');
+      });
+  }
+
+  function renderTable(data) {
+    if (!data.length) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:2rem;">no records</td></tr>`; return; }
+    let html = '';
+    data.forEach((row, idx) => {
+      const sr = row["Sr No"] || (idx + 1);
+      const name = row["Billing Name"] || '—';
+      const mobile = row["Mobile Number"] || '—';
+      const originalIndex = globalData.findIndex(g => g["Sr No"] == sr && g["Billing Name"] === name);
+      const viewIdx = originalIndex !== -1 ? originalIndex : idx;
+      html += `<tr><td>${sr}</td><td>${name}</td><td>${mobile}</td><td><button class="action-view" onclick="viewRow(${viewIdx})"><i class="fas fa-eye"></i> view</button></td></tr>`;
+    });
+    tbody.innerHTML = html;
+  }
+
+  searchInput.addEventListener('input', function() {
+    const term = this.value.trim().toLowerCase();
+    filteredData = term ? globalData.filter(r => (r["Billing Name"] || '').toString().toLowerCase().includes(term)) : [...globalData];
+    renderTable(filteredData);
+  });
+
+  // View row with icons
+  window.viewRow = function(index) {
+    selectedRow = index + 2;
+    const record = globalData[index];
+    if (!record) return;
+    const iconMap = {
+      "Sr No": "fa-hashtag", "Billing Name": "fa-user", "Mobile Number": "fa-mobile-alt",
+      "GST Number": "fa-credit-card", "Email Id": "fa-envelope", "Address": "fa-map-pin",
+      "City": "fa-city", "Pincode": "fa-mail-bulk"
+    };
+    let formHtml = '';
+    for (let [key, val] of Object.entries(record)) {
+      const icon = iconMap[key] || "fa-tag";
+      formHtml += `<div class="field-group"><label><i class="fas ${icon}"></i> ${key}</label><input type="text" name="${key}" value="${(val??'').toString().replace(/"/g, '&quot;')}" ${key==='Sr No'?'readonly':''}></div>`;
+    }
+    editForm.innerHTML = formHtml;
+    modal.style.display = "flex";
+  };
+
+  window.closeModal = () => modal.style.display = "none";
+  window.showDeleteConfirm = () => deleteConfirmModal.style.display = "flex";
+  window.closeDeleteConfirm = () => deleteConfirmModal.style.display = "none";
+
+  function executeDelete() {
+    closeDeleteConfirm(); setModalLoading(true);
+    let fd = new FormData(); fd.append("action","delete"); fd.append("rowIndex", selectedRow); fd.append("spreadsheetId", sheetId); fd.append("sheetName", sheetName);
+    fetch(url, {method:"POST", body:fd}).then(res=>res.json()).then(()=>{
+      setModalLoading(false); showToast('🗑️ Deleted','success'); closeModal(); loadData();
+    }).catch(()=>{ setModalLoading(false); showToast('Delete error','error'); });
+  }
+  confirmDeleteBtn.addEventListener('click', executeDelete);
+
+  // Update with validation
+  window.updateRecord = function() {
+    const inputs = document.querySelectorAll("#editForm input");
+    let mobileValid = true, emailValid = true, gstValid = true, pinValid = true;
+    inputs.forEach(inp => {
+      if (inp.name === "Mobile Number") {
+        if (!validateMobile(inp.value)) { showToast('Mobile must be 10 digits starting with 6-9','error'); mobileValid = false; }
+      }
+      if (inp.name === "Email Id") {
+        if (!validateEmail(inp.value)) { showToast('Invalid email','error'); emailValid = false; }
+      }
+      if (inp.name === "GST Number") {
+        let val = inp.value.toUpperCase(); inp.value = val;
+        if (!/^[0-9]{2}[A-Z0-9]{13}$/.test(val)) { showToast('Invalid GST','error'); gstValid = false; }
+      }
+      if (inp.name === "Pincode") {
+        inp.value = inp.value.replace(/\D/g,'').slice(0,6);
+        if (!/^[0-9]{6}$/.test(inp.value)) { showToast('Pincode 6 digits','error'); pinValid = false; }
+      }
+    });
+    if (!mobileValid || !emailValid || !gstValid || !pinValid) return;
+
+    setModalLoading(true);
+    let fd = new FormData(); fd.append("action","update"); fd.append("rowIndex", selectedRow); fd.append("spreadsheetId", sheetId); fd.append("sheetName", sheetName);
+    inputs.forEach(inp => fd.append(inp.name, inp.value));
+    fetch(url, {method:"POST", body:fd}).then(res=>res.json()).then(()=>{
+      setModalLoading(false); showToast('✅ Updated','success'); closeModal(); loadData();
+    }).catch(()=>{ setModalLoading(false); showToast('Update failed','error'); });
+  };
+
+  // Add modal logic
+  window.openAddPartyModal = () => {
+    addPartyModal.style.display = "flex";
+    loadExistingBillingNames();
+    addPartyForm.reset();
+    mobileHint.style.display = 'none'; emailHint.style.display = 'none';
+    const gstHint = gstInput.parentNode.querySelector('.gst-hint'); if(gstHint) gstHint.remove();
+    gstInput.style.borderColor = '#e3eef2';
+  };
+  window.closeAddPartyModal = () => addPartyModal.style.display = "none";
+
+  // live validation
+  let debTimer;
+  billingNameInput.addEventListener('input', function(e) {
+    clearTimeout(debTimer); debTimer = setTimeout(() => validateBillingName(e.target.value), 400);
+  });
+  mobileInput.addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g,'').slice(0,10); e.target.value = v;
+    if (v.length===10 && /^[6-9]/.test(v)) { mobileHint.style.display='none'; mobileInput.setCustomValidity(''); }
+    else { mobileHint.className='hint error'; mobileHint.innerHTML='<i class="fas fa-exclamation-circle"></i> 10 digits, start 6-9'; mobileHint.style.display='inline-flex'; mobileInput.setCustomValidity(' '); }
+  });
+  emailInput.addEventListener('input', function(e) {
+    if (validateEmail(e.target.value)) { emailHint.style.display='none'; emailInput.setCustomValidity(''); }
+    else { emailHint.className='hint error'; emailHint.innerHTML='<i class="fas fa-exclamation-circle"></i> valid email required'; emailHint.style.display='inline-flex'; emailInput.setCustomValidity(' '); }
+  });
+  gstInput.addEventListener('input', function(e) {
+    let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,''); e.target.value = v;
+    if (v.length===15) {
+      if (!/^[0-9]{2}[A-Z0-9]{13}$/.test(v)) {
+        if (!document.querySelector('.gst-hint')) { let h = document.createElement('span'); h.className='hint error gst-hint'; h.innerHTML='<i class="fas fa-exclamation-circle"></i> format: 2 digits + 13 alnum'; gstInput.parentNode.appendChild(h); }
+      } else { let old = gstInput.parentNode.querySelector('.gst-hint'); if(old) old.remove(); }
+    } else { let old = gstInput.parentNode.querySelector('.gst-hint'); if(old) old.remove(); }
+  });
+  pinInput.addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g,'').slice(0,6));
+
+  addPartyForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    validateBillingName(billingNameInput.value);
+    if (!billingNameValid && isDuplicateCheckDone && billingNameInput.value.trim()) {
+      mobileHint.style.display='inline-flex'; billingNameInput.focus(); return;
+    }
+    if (!validateMobile(mobileInput.value)) { showToast('Invalid mobile','error'); mobileInput.focus(); return; }
+    if (!validateEmail(emailInput.value)) { showToast('Invalid email','error'); emailInput.focus(); return; }
+    if (!addPartyForm.checkValidity()) { addPartyForm.reportValidity(); return; }
+
+    setAddModalLoading(true); submitBtn.disabled = true; spinDiv.style.display = 'block'; msgDiv.style.display = 'none';
+    let fd = new FormData(addPartyForm);
+    fd.append('spreadsheetId', sheetId); fd.append('sheetName', sheetName);
+    fetch(url, {method:'POST', body:fd})
+      .then(res=>res.json())
+      .then(() => {
+        setAddModalLoading(false); spinDiv.style.display = 'none'; msgDiv.style.display = 'flex'; msgDiv.innerHTML = '<i class="fas fa-check-circle"></i> Saved successfully ✓';
+        addPartyForm.reset();
+        mobileHint.style.display = 'none'; emailHint.style.display = 'none';
+        const g = gstInput.parentNode.querySelector('.gst-hint'); if(g) g.remove();
+        loadExistingBillingNames(); loadData(); submitBtn.disabled = false;
+        setTimeout(() => { msgDiv.style.display = 'none'; closeAddPartyModal(); showToast('✅ Record added','success'); }, 1500);
+      })
+      .catch(() => {
+        setAddModalLoading(false); spinDiv.style.display = 'none'; msgDiv.style.display = 'flex'; msgDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error — not saved'; msgDiv.style.background = '#ffefed'; msgDiv.style.color = '#b13e3e'; submitBtn.disabled = false;
+      });
+  });
+
+  fabAdd.addEventListener('click', openAddPartyModal);
+  addPartyModal.addEventListener('click', e => { if (e.target === addPartyModal) closeAddPartyModal(); });
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  deleteConfirmModal.addEventListener('click', e => { if (e.target === deleteConfirmModal) closeDeleteConfirm(); });
+
+  loadData(); loadExistingBillingNames();
+  window.closeModal = closeModal; window.updateRecord = updateRecord; window.showDeleteConfirm = showDeleteConfirm; window.closeDeleteConfirm = closeDeleteConfirm; window.closeAddPartyModal = closeAddPartyModal;
+})();
+</script>
+</body>
+</html>

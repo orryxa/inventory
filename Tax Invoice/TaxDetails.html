@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Invoice Management System Pro</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --secondary: #64748b;
+            --info: #0891b2;
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --border: #e2e8f0;
+            --toast-success: #10b981;
+            --toast-error: #ef4444;
+            --toast-warning: #f59e0b;
+            --toast-info: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: clamp(10px, 4vw, 30px);
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 80px; /* Space for FAB */
+        }
+
+        h2 {
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
+            font-weight: 800;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #0f172a;
+        }
+
+        h2 i {
+            color: var(--primary);
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- Floating Action Button (FAB) --- */
+        .fab-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
+        }
+
+        .fab-main {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            z-index: 2;
+        }
+
+        .fab-main:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.6);
+        }
+
+        .fab-menu {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            min-width: 200px;
+            display: none;
+            animation: slideUp 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .fab-menu.active {
+            display: block;
+        }
+
+        .fab-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-main);
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .fab-menu-item i {
+            width: 24px;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .fab-menu-item:hover {
+            background: #f0f9ff;
+            transform: translateX(-5px);
+        }
+
+        .fab-menu-item:not(:last-child) {
+            border-bottom: 1px solid var(--border);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Toast Notification System --- */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 350px;
+            width: calc(100% - 40px);
+        }
+
+        .toast {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideInRight 0.3s ease forwards;
+            border-left: 4px solid;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toast:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .toast.success { border-left-color: var(--toast-success); }
+        .toast.error { border-left-color: var(--toast-error); }
+        .toast.warning { border-left-color: var(--toast-warning); }
+        .toast.info { border-left-color: var(--toast-info); }
+
+        .toast-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .toast.success .toast-icon { background: rgba(16, 185, 129, 0.1); color: var(--toast-success); }
+        .toast.error .toast-icon { background: rgba(239, 68, 68, 0.1); color: var(--toast-error); }
+        .toast.warning .toast-icon { background: rgba(245, 158, 11, 0.1); color: var(--toast-warning); }
+        .toast.info .toast-icon { background: rgba(59, 130, 246, 0.1); color: var(--toast-info); }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-main);
+        }
+
+        .toast-message {
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .toast-progress-bar {
+            height: 100%;
+            width: 100%;
+            animation: progress 5s linear forwards;
+        }
+
+        .toast.success .toast-progress-bar { background: var(--toast-success); }
+        .toast.error .toast-progress-bar { background: var(--toast-error); }
+        .toast.warning .toast-progress-bar { background: var(--toast-warning); }
+        .toast.info .toast-progress-bar { background: var(--toast-info); }
+
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* --- Confirmation Modal --- */
+        .confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .confirm-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: scaleIn 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .confirm-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .confirm-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .confirm-icon.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .confirm-icon.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .confirm-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .confirm-message {
+            color: var(--secondary);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .confirm-btn.confirm {
+            background: var(--danger);
+            color: white;
+        }
+
+        .confirm-btn.cancel {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* --- Main Table Responsiveness --- */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: white;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        /* Responsive Main Table (Mobile) - Card View */
+        @media (max-width: 768px) {
+            #mainTable thead { 
+                display: none; 
+            }
+			
+			 #mainTable td i {
+			display: none;
+			}
+            
+            #mainTable tbody tr {
+                display: block;
+                background: white;
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                margin-bottom: 20px;
+                padding: 20px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+                animation: fadeInUp 0.5s ease;
+                transition: all 0.3s ease;
+            }
+
+            #mainTable tbody tr:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            }
+            
+            #mainTable td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 0;
+                border: none;
+                border-bottom: 1px dashed var(--border);
+            }
+            
+            #mainTable td:last-child {
+                border-bottom: none;
+                padding-top: 20px;
+                margin-top: 10px;
+                border-top: 2px solid var(--primary);
+            }
+            
+            #mainTable td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                color: var(--secondary);
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                min-width: 100px;
+            }
+
+            #mainTable td:first-child::before {
+                content: "📋 Sr. No:";
+            }
+
+            #mainTable td:nth-child(2)::before {
+                content: "📅 Date:";
+            }
+
+            #mainTable td:nth-child(3)::before {
+                content: "🧾 Invoice No:";
+            }
+
+            #mainTable td:nth-child(4)::before {
+                content: "👤 Bill To:";
+            }
+
+            #mainTable td:nth-child(5)::before {
+                content: "⚡ Actions:";
+            }
+            
+            #mainTable td[data-label="Actions"] button {
+                width: 100%;
+                padding: 14px !important;
+                font-size: 1rem;
+                background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            #mainTable td[data-label="Actions"] button i {
+                font-size: 1.1rem;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Popup & Layout --- */
+        .popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: clamp(0px, 2vw, 20px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup-content {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 1200px;
+            max-height: 100%;
+            border-radius: clamp(0px, 4vw, 20px);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .popup-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .popup-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+        }
+
+        .popup-header h3 i {
+            font-size: 1.5rem;
+        }
+
+        .popup-header button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .popup-header button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+
+        .popup-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* --- Header Grid - Enhanced for Popup --- */
+        .header-box {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        @media (min-width: 768px) {
+            .header-box {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .header-item {
+            background: #f8fafc;
+            padding: 12px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .header-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .header-item label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--secondary);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .header-item label i {
+            font-size: 0.8rem;
+        }
+
+        .header-item span, .header-item input {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            width: 100%;
+            border: none;
+            background: transparent;
+        }
+
+        .header-item input:enabled {
+            background: white;
+            padding: 8px 12px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* --- Items Management - Enhanced Table --- */
+        .items-container {
+            margin: 20px 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+
+        #itemTable {
+            width: 100%;
+            background: white;
+        }
+
+        #itemTable thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            padding: 15px 12px;
+        }
+
+        #itemTable tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        #itemTable tbody tr:hover {
+            background: #f0f9ff;
+        }
+
+        #itemTable td {
+            padding: 12px;
+            vertical-align: middle;
+        }
+
+        #itemTable input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+
+        #itemTable input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
+        }
+
+        #itemTable input:enabled {
+            background: white;
+            border: 2px solid var(--primary);
+        }
+
+        .rowTotal {
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-align: right;
+        }
+
+        /* Mobile Item Row Enhancement */
+        @media (max-width: 900px) {
+            #itemTable thead { 
+                display: none; 
+            }
+            
+            #itemTable tbody tr {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                background: white;
+                margin-bottom: 15px;
+                padding: 20px;
+                border-radius: 16px;
+                border: 1px solid var(--border);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                animation: fadeIn 0.3s ease;
+            }
+            
+            #itemTable td { 
+                border: none; 
+                padding: 0; 
+                display: block; 
+            }
+            
+            #itemTable td:first-child { 
+                grid-column: span 2; 
+                border-bottom: 2px solid var(--primary); 
+                padding-bottom: 10px; 
+                margin-bottom: 5px;
+            }
+            
+            #itemTable td:first-child input {
+                font-size: 1.1rem;
+                font-weight: 600;
+            }
+            
+            #itemTable td::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 0.7rem;
+                font-weight: 700;
+                color: var(--secondary);
+                text-transform: uppercase;
+                margin-bottom: 4px;
+                letter-spacing: 0.5px;
+            }
+            
+            #itemTable td[data-label="Total"] {
+                grid-column: span 2;
+                background: #f0fdf4;
+                padding: 10px;
+                border-radius: 8px;
+                margin-top: 5px;
+            }
+            
+            #itemTable td[data-label="Total"]::before {
+                color: var(--success);
+            }
+            
+            .delete-row-cell {
+                grid-column: span 2;
+                text-align: center;
+                margin-top: 10px;
+            }
+            
+            .delete-row-cell button {
+                width: 100%;
+                padding: 12px !important;
+                border-radius: 8px;
+                font-weight: 600;
+            }
+        }
+
+        /* --- Buttons with Loading States --- */
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn i {
+            font-size: 1rem;
+        }
+
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            color: white; 
+        }
+        
+        .btn-success { 
+            background: linear-gradient(135deg, #10b981, #059669); 
+            color: white; 
+        }
+        
+        .btn-danger { 
+            background: linear-gradient(135deg, #ef4444, #dc2626); 
+            color: white; 
+        }
+        
+        .btn-warning { 
+            background: linear-gradient(135deg, #f59e0b, #d97706); 
+            color: white; 
+        }
+        
+        .btn-secondary { 
+            background: linear-gradient(135deg, #64748b, #475569); 
+            color: white; 
+        }
+
+        .btn-info { 
+            background: linear-gradient(135deg, #0891b2, #0e7490); 
+            color: white; 
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-btn.loading {
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        .action-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Popup Actions */
+        .popup-actions {
+            padding: 20px;
+            background: #f1f5f9;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            border-top: 2px solid var(--border);
+        }
+
+        @media (min-width: 640px) {
+            .popup-actions {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .popup-actions {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .popup-actions .action-btn {
+                min-width: 120px;
+            }
+        }
+
+        .popup-actions .action-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+            font-size: 1rem;
+            border-radius: 12px;
+            margin: 0;
+        }
+
+        @media (min-width: 640px) {
+            .popup-actions .action-btn {
+                padding: 12px;
+            }
+        }
+        
+        /* Handle the Update button when it appears */
+        .popup-actions:has(#updateBtn[style*="display: inline-flex"]) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        #updateBtn {
+            grid-column: span 1;
+        }
+
+        /* --- Totals & Words --- */
+        .total-box {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        @media (min-width: 768px) {
+            .total-box {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .total-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .total-item:hover {
+            transform: translateY(-3px);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .total-item span:first-child { 
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem; 
+            opacity: 0.7;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .total-item span:last-child { 
+            font-size: 1.2rem; 
+            font-weight: 700;
+            display: block;
+        }
+
+        .amount-words-box {
+            margin-top: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-left: 4px solid var(--success);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .amount-words-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(5, 150, 105, 0.2);
+        }
+
+        .amount-words-box label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--success);
+            margin-bottom: 8px;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+        
+        /* Additional mobile optimizations */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                padding-bottom: 80px;
+            }
+            
+            .header-box {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .total-box {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .amount-words-box {
+                padding: 15px;
+                font-size: 0.9rem;
+            }
+            
+            .popup-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .popup-actions:has(#updateBtn[style*="display: inline-flex"]) {
+                grid-template-columns: 1fr;
+            }
+
+            .fab-container {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .fab-main {
+                width: 55px;
+                height: 55px;
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Toast Notification Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Confirmation Modal -->
+<div class="confirm-modal" id="confirmModal">
+    <div class="confirm-content">
+        <div class="confirm-icon" id="confirmIcon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="confirm-title" id="confirmTitle">Confirm Action</h3>
+        <p class="confirm-message" id="confirmMessage">Are you sure you want to proceed?</p>
+        <div class="confirm-actions">
+            <button class="confirm-btn cancel" onclick="closeConfirmModal()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button class="confirm-btn confirm" id="confirmActionBtn">
+                <i class="fas fa-check"></i> Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
+<h2><i class="fas fa-file-invoice"></i> Invoice Manager</h2>
+
+<div class="table-container animate__animated animate__fadeIn">
+    <table id="mainTable">
+        <thead>
+            <tr>
+                <th><i class="fas fa-hashtag"></i> Sr No</th>
+                <th><i class="fas fa-calendar-alt"></i> Date</th>
+                <th><i class="fas fa-file-invoice"></i> Invoice No</th>
+                <th><i class="fas fa-user-tie"></i> Bill To</th>
+                <th><i class="fas fa-cog"></i> Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="5" style="text-align:center"><div class="loader"></div></td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Floating Action Button (FAB) -->
+<div class="fab-container">
+    <button class="fab-main" onclick="toggleFabMenu()">
+        <i class="fas fa-plus"></i>
+    </button>
+    <div class="fab-menu" id="fabMenu">
+        <button class="fab-menu-item" onclick="createTaxInvoice()">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Tax Invoice</span>
+        </button>
+        <button class="fab-menu-item" onclick="addBillTo()">
+            <i class="fas fa-user-plus"></i>
+            <span>Add Bill To</span>
+        </button>
+        <button class="fab-menu-item" onclick="addYourDetails()">
+            <i class="fas fa-building"></i>
+            <span>Your Details</span>
+        </button>
+    </div>
+</div>
+
+<div class="popup" id="popup">
+    <div class="popup-content">
+        <div class="popup-header">
+            <h3><i class="fas fa-file-invoice-dollar"></i> Invoice Details</h3>
+            <button onclick="closePopup()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="popup-body">
+            <div id="headerInfo" class="header-box"></div>
+
+            <div class="items-container">
+                <table id="itemTable">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-align-left"></i> Description</th>
+                            <th><i class="fas fa-barcode"></i> HSN</th>
+                            <th><i class="fas fa-box"></i> QTY</th>
+                            <th><i class="fas fa-rupee-sign"></i> Rate (₹)</th>
+                            <th><i class="fas fa-ruler"></i> Per</th>
+                            <th><i class="fas fa-calculator"></i> Total (₹)</th>
+                            <th style="display:none;" id="deleteColumnHeader"><i class="fas fa-trash"></i> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <button id="addRowBtn" onclick="addRow()" style="display:none; margin-bottom: 20px;" class="action-btn btn-warning">
+                <i class="fas fa-plus-circle"></i> Add Item
+            </button>
+
+            <div class="total-box" id="totals"></div>
+            
+            <div class="amount-words-box" id="amountInWordsBox" style="display: none;">
+                <label><i class="fas fa-font"></i> AMOUNT IN WORDS</label>
+                <div id="amountInWords" style="font-weight: 600; text-transform: capitalize;"></div>
+            </div>
+        </div>
+
+        <div class="popup-actions">
+            <button id="editBtn" onclick="enableEdit()" class="action-btn btn-primary">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+            <button id="updateBtn" onclick="saveUpdate()" style="display:none;" class="action-btn btn-success">
+                <i class="fas fa-save"></i> Update
+            </button>
+            <button onclick="confirmDelete()" class="action-btn btn-danger">
+                <i class="fas fa-trash-alt"></i> Delete
+            </button>
+            <button onclick="printInvoicePopup()" class="action-btn btn-info">
+                <i class="fas fa-print"></i> Print
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// --- CORE CONFIGURATION (All original logic maintained) ---
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxl4wjANSRagPaOEd5tglN-4t-V5YDD-9GeP2reO-AlifxtAAaRS-1-RVP_3Cvybr1LTw/exec";
+const spreadsheetId = "1nDGtN6CyFdrPONDnZ52pbdgVOJ8UTdxsbZOeFyeTiuE";
+const sheetName = "Tax_Inv";
+
+let globalData = [];
+let selectedRowIndex = null;
+let currentData = null;
+let confirmCallback = null;
+
+// --- FAB Menu Toggle ---
+function toggleFabMenu() {
+    const menu = document.getElementById('fabMenu');
+    menu.classList.toggle('active');
+}
+
+// Close FAB menu when clicking outside
+document.addEventListener('click', function(e) {
+    const fab = document.querySelector('.fab-container');
+    const menu = document.getElementById('fabMenu');
+    if (!fab.contains(e.target) && menu.classList.contains('active')) {
+        menu.classList.remove('active');
+    }
+});
+
+// FAB Menu Actions
+function createTaxInvoice() {
+    toggleFabMenu();
+    
+    // Navigate to TaxInv.html in the same window
+    window.location.href = 'TaxInv.html';
+    
+    // Optional: Show toast notification
+    showToast('Loading Tax Invoice form...', 'info', 'New Invoice');
+}
+
+function addBillTo() {
+    toggleFabMenu();
+	// Navigate to TaxInv.html in the same window
+    window.location.href = 'BillToTax.html';
+	
+    showToast('Add new billing party', 'info', 'Add Bill To');
+    // You can add logic to open bill-to creation form here
+}
+
+function addYourDetails() {
+    toggleFabMenu();
+	// Navigate to TaxInv.html in the same window
+    window.location.href = 'YourDetTax.html';
+    showToast('Add/Edit your company details', 'info', 'Your Details');
+    // You can add logic to open company details form here
+}
+
+// --- Toast Notification System ---
+function showToast(message, type = 'info', title = '') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type} animate__animated animate__fadeInRight`;
+    
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    
+    const titles = {
+        success: 'Success!',
+        error: 'Error!',
+        warning: 'Warning!',
+        info: 'Information'
+    };
+    
+    toast.innerHTML = `
+        <div class="toast-icon">
+            <i class="fas ${icons[type]}"></i>
+        </div>
+        <div class="toast-content">
+            <div class="toast-title">${title || titles[type]}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+        <div class="toast-progress">
+            <div class="toast-progress-bar"></div>
+        </div>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease forwards';
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 5000);
+    
+    // Click to dismiss
+    toast.addEventListener('click', () => {
+        toast.style.animation = 'slideOutRight 0.3s ease forwards';
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    });
+}
+
+// --- Confirmation Modal ---
+function showConfirmModal(title, message, icon = 'warning', onConfirm) {
+    const modal = document.getElementById('confirmModal');
+    const iconElement = document.getElementById('confirmIcon');
+    const titleElement = document.getElementById('confirmTitle');
+    const messageElement = document.getElementById('confirmMessage');
+    const confirmBtn = document.getElementById('confirmActionBtn');
+    
+    // Set icon
+    iconElement.className = `confirm-icon ${icon}`;
+    const icons = {
+        warning: 'fa-exclamation-triangle',
+        danger: 'fa-trash-alt',
+        success: 'fa-check-circle'
+    };
+    iconElement.innerHTML = `<i class="fas ${icons[icon] || icons.warning}"></i>`;
+    
+    titleElement.textContent = title;
+    messageElement.textContent = message;
+    
+    confirmCallback = onConfirm;
+    
+    modal.style.display = 'flex';
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModal').style.display = 'none';
+    confirmCallback = null;
+}
+
+document.getElementById('confirmActionBtn').addEventListener('click', () => {
+    if (confirmCallback) {
+        confirmCallback();
+    }
+    closeConfirmModal();
+});
+
+// Close modal when clicking outside
+document.getElementById('confirmModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('confirmModal')) {
+        closeConfirmModal();
+    }
+});
+
+// --- Button Loading State ---
+function setButtonLoading(button, isLoading, originalText = null) {
+    if (isLoading) {
+        button.dataset.originalText = button.innerHTML;
+        button.classList.add('loading');
+        button.disabled = true;
+    } else {
+        button.classList.remove('loading');
+        button.disabled = false;
+        if (originalText) {
+            button.innerHTML = originalText;
+        }
+    }
+}
+
+function loadData() {
+    fetch(`${SCRIPT_URL}?spreadsheetId=${spreadsheetId}&sheetName=${sheetName}`)
+        .then(res => res.json())
+        .then(res => {
+            globalData = res.data || [];
+            renderMain();
+            showToast('Data loaded successfully', 'success');
+        })
+        .catch(err => {
+            document.querySelector("#mainTable tbody").innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 40px;">
+                <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--danger); margin-bottom: 10px;"></i>
+                <br>Error: ${err.message}
+            </td></tr>`;
+            showToast('Failed to load data: ' + err.message, 'error');
+        });
+}
+
+function renderMain() {
+    let tbody = document.querySelector("#mainTable tbody");
+    tbody.innerHTML = "";
+    if (globalData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fas fa-inbox"></i><br>No data found</td></tr>';
+        return;
+    }
+    globalData.forEach((row, i) => {
+        let tr = document.createElement("tr");
+        tr.className = 'animate__animated animate__fadeIn';
+        tr.style.animationDelay = `${i * 0.05}s`;
+        
+        // Check if mobile view (using media query detection via window width)
+        const isMobile = window.innerWidth <= 768;
+        
+        tr.innerHTML = `
+            <td data-label="Sr No">${!isMobile ? '<i class="fas fa-hashtag" style="color: var(--secondary); margin-right: 5px;"></i>' : ''}${row["Sr No"] || ''}</td>
+            <td data-label="Date">${!isMobile ? '<i class="fas fa-calendar-alt" style="color: var(--secondary); margin-right: 5px;"></i>' : ''}${formatDate(row["Date"])}</td>
+            <td data-label="Invoice No">${!isMobile ? '<i class="fas fa-file-invoice" style="color: var(--secondary); margin-right: 5px;"></i>' : ''}${row["Invoice No"] || ''}</td>
+            <td data-label="Bill To">${!isMobile ? '<i class="fas fa-user-tie" style="color: var(--secondary); margin-right: 5px;"></i>' : ''}${row["Bill To"] || ''}</td>
+            <td data-label="Actions"><button onclick="openDetails(${i})" class="action-btn btn-primary" style="padding: 6px 12px; text-align: center; justify-content: center; width: 80%; padding: 3%;">
+                <i class="fas fa-eye"></i> View
+            </button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// Add resize event listener to update icons when window resizes
+window.addEventListener('resize', function() {
+    // Only re-render if we cross the mobile threshold
+    const wasMobile = window.innerWidth <= 768;
+    const isNowMobile = window.innerWidth <= 768;
+    
+    if (wasMobile !== isNowMobile) {
+        renderMain();
+    }
+});
+
+function openDetails(i) {
+    selectedRowIndex = i + 2;
+    currentData = globalData[i];
+    document.getElementById("popup").style.display = "flex";
+    
+    // Reset buttons
+    document.getElementById("editBtn").style.display = "inline-flex";
+    document.getElementById("updateBtn").style.display = "none";
+    document.getElementById("addRowBtn").style.display = "none";
+    document.getElementById("deleteColumnHeader").style.display = "none";
+
+    renderHeader();
+    renderItems();
+    calculateTotals();
+}
+
+function renderHeader() {
+    let d = currentData;
+    const fields = [
+        { label: "Sr No", value: d["Sr No"], icon: "fa-hashtag" },
+        { label: "Date", value: formatDate(d["Date"]), icon: "fa-calendar-alt" },
+        { label: "Invoice No", value: d["Invoice No"], icon: "fa-file-invoice" },
+        { label: "Bill To", value: d["Bill To"], icon: "fa-user-tie" },
+        { label: "Address", value: d["Address"], icon: "fa-map-marker-alt" },
+        { label: "Pincode", value: d["Pincode"], icon: "fa-mail-bulk" },
+        { label: "City", value: d["City"], icon: "fa-city" },
+        { label: "GST Number", value: d["GST Number"], icon: "fa-id-card" }
+    ];
+
+    let html = fields.map(f => `
+        <div class="header-item"><label><i class="fas ${f.icon}"></i> ${f.label}</label><span>${f.value || ''}</span></div>
+    `).join('');
+
+    html += `
+        <div class="header-item"><label><i class="fas fa-phone-alt"></i> Mobile</label><input id="mobileEdit" value="${d["Mobile Number"] || ''}" disabled></div>
+        <div class="header-item"><label><i class="fas fa-envelope"></i> Email</label><input id="emailEdit" value="${d["Email Id"] || ''}" disabled></div>
+        <div class="header-item"><label><i class="fas fa-percentage"></i> GST %</label><input id="gstEdit" type="number" step="0.01" value="${d["GST %"] || 0}" disabled oninput="calculateTotals()"></div>
+    `;
+    document.getElementById("headerInfo").innerHTML = html;
+}
+
+function renderItems() {
+    let tbody = document.querySelector("#itemTable tbody");
+    tbody.innerHTML = "";
+    let hasItems = false;
+    for (let i = 1; i <= 15; i++) {
+        let desc = currentData[`Description ${i}`];
+        if (!desc) continue;
+        hasItems = true;
+        let qty = currentData[`QTY ${i}`] || 0;
+        let rate = currentData[`Rate ${i}`] || 0;
+        
+        let tr = document.createElement("tr");
+        tr.dataset.originalId = i;
+        tr.innerHTML = `
+            <td data-label="Description"><input value="${desc}" disabled oninput="calculateTotals()"></td>
+            <td data-label="HSN"><input value="${currentData[`HSN Code ${i}`] || ''}" disabled></td>
+            <td data-label="QTY"><input type="number" value="${qty}" disabled oninput="recalcRow(this)"></td>
+            <td data-label="Rate"><input type="number" value="${rate}" disabled oninput="recalcRow(this)"></td>
+            <td data-label="Per"><input value="${currentData[`Per ${i}`] || ''}" disabled></td>
+            <td data-label="Total" class="rowTotal">${(qty * rate).toFixed(2)}</td>
+            <td class="delete-row-cell" style="display:none;"><button onclick="deleteItemRow(this)" class="btn-danger" style="padding:8px 12px; border-radius:6px; border:none; color:white;"><i class="fas fa-trash"></i> Remove</button></td>
+        `;
+        tbody.appendChild(tr);
+    }
+    
+    if (!hasItems) {
+        let tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="7" style="text-align:center; padding:40px;">
+            <i class="fas fa-box-open" style="font-size:2rem; color:var(--secondary);"></i>
+            <br>No items found
+        </td>`;
+        tbody.appendChild(tr);
+    }
+}
+
+function enableEdit() {
+    document.getElementById("editBtn").style.display = "none";
+    document.getElementById("updateBtn").style.display = "inline-flex";
+    document.getElementById("addRowBtn").style.display = "inline-flex";
+    document.getElementById("deleteColumnHeader").style.display = "table-cell";
+    document.querySelectorAll("#itemTable input, .header-item input").forEach(i => i.disabled = false);
+    document.querySelectorAll(".delete-row-cell").forEach(c => c.style.display = "table-cell");
+    showToast('Edit mode enabled. You can now modify the invoice.', 'info', 'Edit Mode');
+}
+
+function addRow() {
+    let tbody = document.querySelector("#itemTable tbody");
+    if (tbody.children.length >= 15) {
+        showToast('Maximum 15 items allowed', 'warning');
+        return;
+    }
+    let tr = document.createElement("tr");
+    tr.className = 'animate__animated animate__fadeIn';
+    tr.innerHTML = `
+        <td data-label="Description"><input placeholder="Enter description" oninput="calculateTotals()"></td>
+        <td data-label="HSN"><input placeholder="HSN code"></td>
+        <td data-label="QTY"><input type="number" value="0" min="0" step="0.01" oninput="recalcRow(this)"></td>
+        <td data-label="Rate"><input type="number" value="0" min="0" step="0.01" oninput="recalcRow(this)"></td>
+        <td data-label="Per"><input placeholder="Unit"></td>
+        <td data-label="Total" class="rowTotal">0.00</td>
+        <td class="delete-row-cell"><button onclick="deleteItemRow(this)" class="btn-danger" style="padding:8px 12px; border-radius:6px; border:none; color:white;"><i class="fas fa-trash"></i> Remove</button></td>
+    `;
+    tbody.appendChild(tr);
+    showToast('New item row added', 'success');
+}
+
+function deleteItemRow(btn) {
+    showConfirmModal(
+        'Delete Item',
+        'Are you sure you want to remove this item?',
+        'danger',
+        () => {
+            btn.closest('tr').remove();
+            calculateTotals();
+            showToast('Item removed successfully', 'success');
+        }
+    );
+}
+
+function recalcRow(el) {
+    let tr = el.closest("tr");
+    let qty = parseFloat(tr.querySelector("td[data-label='QTY'] input").value) || 0;
+    let rate = parseFloat(tr.querySelector("td[data-label='Rate'] input").value) || 0;
+    tr.querySelector(".rowTotal").innerText = (qty * rate).toFixed(2);
+    calculateTotals();
+}
+
+function calculateTotals() {
+    let subtotal = 0, totalQty = 0;
+    document.querySelectorAll("#itemTable tbody tr").forEach(tr => {
+        let q = parseFloat(tr.querySelector("td[data-label='QTY'] input").value) || 0;
+        let t = parseFloat(tr.querySelector(".rowTotal").innerText) || 0;
+        totalQty += q;
+        subtotal += t;
+    });
+
+    let gstRate = parseFloat(document.getElementById("gstEdit").value) || 0;
+    let gstAmt = (subtotal * gstRate) / 100;
+    let finalAmt = subtotal + gstAmt;
+    let words = numberToWords(finalAmt);
+
+    document.getElementById("totals").innerHTML = `
+        <div class="total-item"><span><i class="fas fa-boxes"></i> TOTAL QTY</span><span>${totalQty.toFixed(2)}</span></div>
+        <div class="total-item"><span><i class="fas fa-calculator"></i> SUBTOTAL</span><span>₹${subtotal.toFixed(2)}</span></div>
+        <div class="total-item"><span><i class="fas fa-percentage"></i> GST (${gstRate}%)</span><span>₹${gstAmt.toFixed(2)}</span></div>
+        <div class="total-item"><span><i class="fas fa-rupee-sign"></i> FINAL AMOUNT</span><span>₹${finalAmt.toFixed(2)}</span></div>
+    `;
+
+    document.getElementById("amountInWords").innerText = words;
+    document.getElementById("amountInWordsBox").style.display = "block";
+
+    // Store metadata for save
+    document.getElementById("totals").dataset.totalqty = totalQty;
+    document.getElementById("totals").dataset.subtotal = subtotal;
+    document.getElementById("totals").dataset.gstamt = gstAmt;
+    document.getElementById("totals").dataset.finalamt = finalAmt;
+    document.getElementById("totals").dataset.words = words;
+}
+
+function saveUpdate() {
+    showConfirmModal(
+        'Save Changes',
+        'Are you sure you want to update this invoice?',
+        'success',
+        () => {
+            const updateBtn = document.getElementById("updateBtn");
+            setButtonLoading(updateBtn, true);
+            
+            let payload = new URLSearchParams();
+            payload.append("action", "update");
+            payload.append("spreadsheetId", spreadsheetId);
+            payload.append("sheetName", sheetName);
+            payload.append("rowIndex", selectedRowIndex);
+
+            // Basic fields
+            payload.append("Sr No", currentData["Sr No"]);
+            payload.append("Date", formatDate(currentData["Date"]));
+            payload.append("Invoice No", currentData["Invoice No"]);
+            payload.append("Bill To", currentData["Bill To"]);
+            payload.append("Address", currentData["Address"]);
+            payload.append("Pincode", currentData["Pincode"]);
+            payload.append("City", currentData["City"]);
+            payload.append("GST Number", currentData["GST Number"]);
+            payload.append("Mobile Number", document.getElementById("mobileEdit").value);
+            payload.append("Email Id", document.getElementById("emailEdit").value);
+            payload.append("GST %", document.getElementById("gstEdit").value);
+
+            // Items
+            let rows = document.querySelectorAll("#itemTable tbody tr");
+            for (let i = 1; i <= 15; i++) {
+                let row = rows[i-1];
+                payload.append(`Description ${i}`, row ? row.querySelector("td[data-label='Description'] input").value : "");
+                payload.append(`HSN Code ${i}`, row ? row.querySelector("td[data-label='HSN'] input").value : "");
+                payload.append(`QTY ${i}`, row ? row.querySelector("td[data-label='QTY'] input").value : "0");
+                payload.append(`Rate ${i}`, row ? row.querySelector("td[data-label='Rate'] input").value : "0");
+                payload.append(`Per ${i}`, row ? row.querySelector("td[data-label='Per'] input").value : "");
+                payload.append(`Total Amount ${i}`, row ? row.querySelector(".rowTotal").innerText : "0");
+            }
+
+            payload.append("Total QTY", document.getElementById("totals").dataset.totalqty);
+            payload.append("Total Amount Before GST", document.getElementById("totals").dataset.subtotal);
+            payload.append("GST Amount", document.getElementById("totals").dataset.gstamt);
+            payload.append("Total Amount After GST", document.getElementById("totals").dataset.finalamt);
+            payload.append("Total Amount in Words", document.getElementById("totals").dataset.words);
+
+            fetch(SCRIPT_URL, { method: "POST", body: payload })
+                .then(r => r.json())
+                .then(res => {
+                    setButtonLoading(updateBtn, false);
+                    showToast(res.message || 'Invoice updated successfully', 'success');
+                    closePopup();
+                    loadData();
+                })
+                .catch(err => {
+                    setButtonLoading(updateBtn, false);
+                    showToast('Error updating invoice: ' + err.message, 'error');
+                });
+        }
+    );
+}
+
+function confirmDelete() {
+    showConfirmModal(
+        'Delete Invoice',
+        'Are you sure you want to delete this entire invoice? This action cannot be undone.',
+        'danger',
+        () => {
+            const deleteBtn = event.target.closest('.action-btn');
+            setButtonLoading(deleteBtn, true);
+            
+            let payload = new URLSearchParams({
+                action: "delete",
+                spreadsheetId: spreadsheetId,
+                sheetName: sheetName,
+                rowIndex: selectedRowIndex
+            });
+            
+            fetch(SCRIPT_URL, { method: "POST", body: payload })
+                .then(r => r.json())
+                .then(res => {
+                    setButtonLoading(deleteBtn, false);
+                    showToast(res.message || 'Invoice deleted successfully', 'success');
+                    closePopup();
+                    loadData();
+                })
+                .catch(err => {
+                    setButtonLoading(deleteBtn, false);
+                    showToast('Error deleting invoice: ' + err.message, 'error');
+                });
+        }
+    );
+}
+
+// Print function with optimized A4 layout
+function printInvoicePopup() {
+    const printWindow = window.open('', '_blank');
+    
+    // Get current data
+    const invoiceNo = currentData["Invoice No"] || '';
+    const date = formatDate(currentData["Date"]);
+    const billTo = currentData["Bill To"] || '';
+    const address = currentData["Address"] || '';
+    const city = currentData["City"] || '';
+    const pincode = currentData["Pincode"] || '';
+    const gst = currentData["GST Number"] || '';
+    const mobile = currentData["Mobile Number"] || '';
+    const email = currentData["Email Id"] || '';
+    
+    // Get company details
+    const companyName = currentData["Company Name"] || '';
+    const companyGST = currentData["Company GST"] || '';
+    const companyAddress = currentData["Address"] || '';
+    const companyCity = currentData["City"] || '';
+    const companyPincode = currentData["Pincode"] || '';
+    const placeSupply = currentData["Place of Supply"] || '';
+    
+    // Get items
+    let itemsHtml = '';
+    let subtotal = 0, totalQty = 0;
+    
+    for (let i = 1; i <= 15; i++) {
+        let desc = currentData[`Description ${i}`];
+        if (!desc) continue;
+        
+        let hsn = currentData[`HSN Code ${i}`] || '';
+        let qty = parseFloat(currentData[`QTY ${i}`]) || 0;
+        let rate = parseFloat(currentData[`Rate ${i}`]) || 0;
+        let per = currentData[`Per ${i}`] || '';
+        let total = qty * rate;
+        
+        subtotal += total;
+        totalQty += qty;
+        
+        itemsHtml += `
+            <tr>
+                <td>${i}</td>
+                <td>${desc}</td>
+                <td>${hsn}</td>
+                <td class="text-right">${qty.toFixed(2)}</td>
+                <td class="text-right">₹${rate.toFixed(2)}</td>
+                <td>${per}</td>
+                <td class="text-right">₹${total.toFixed(2)}</td>
+            </tr>
+        `;
+    }
+    
+    let gstRate = parseFloat(currentData["GST %"]) || 0;
+    let gstAmt = (subtotal * gstRate) / 100;
+    let finalAmt = subtotal + gstAmt;
+    let words = numberToWords(finalAmt);
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Tax Invoice - ${invoiceNo}</title>
+            <meta charset="UTF-8">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                body { 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    background: #fff;
+                    color: #000;
+                    line-height: 1.3;
+                    padding: 15px;
+                }
+                
+                .invoice-container {
+                    max-width: 210mm;
+                    margin: 0 auto;
+                    background: white;
+                    padding: 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+                }
+                
+                /* Header */
+                .header {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 20px 25px;
+                    border-radius: 10px;
+                    margin-bottom: 20px;
+                    text-align: center;
+                }
+                
+                .header h1 {
+                    margin: 0;
+                    font-size: 28px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 12px;
+                    letter-spacing: 1px;
+                }
+                
+                .header h1 i {
+                    font-size: 32px;
+                }
+                
+                .invoice-meta {
+                    display: flex;
+                    justify-content: center;
+                    gap: 40px;
+                    margin-top: 12px;
+                    font-size: 14px;
+                    font-weight: 500;
+                }
+                
+                .invoice-meta span {
+                    background: rgba(255,255,255,0.2);
+                    padding: 6px 15px;
+                    border-radius: 20px;
+                }
+                
+                /* Party Details */
+                .party-details {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 20px;
+                    margin-bottom: 25px;
+                }
+                
+                .from-box, .to-box {
+                    background: #f8fafc;
+                    border-radius: 10px;
+                    padding: 15px 20px;
+                    border: 1px solid #e2e8f0;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+                }
+                
+                .box-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    color: #667eea;
+                    font-weight: 700;
+                    font-size: 16px;
+                    margin-bottom: 15px;
+                    padding-bottom: 8px;
+                    border-bottom: 2px solid #e2e8f0;
+                }
+                
+                .box-header i {
+                    font-size: 18px;
+                }
+                
+                .details-grid {
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    gap: 6px;
+                    font-size: 13px;
+                }
+                
+                .details-row {
+                    display: flex;
+                    align-items: flex-start;
+                }
+                
+                .details-label {
+                    min-width: 100px;
+                    font-weight: 600;
+                    color: #64748b;
+                }
+                
+                .details-value {
+                    flex: 1;
+                    color: #1e293b;
+                }
+                
+                /* Items Table */
+                .items-table-container {
+                    margin-bottom: 25px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 10px;
+                    overflow: hidden;
+                }
+                
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 12px;
+                }
+                
+                th {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 10px 8px;
+                    font-weight: 600;
+                    text-align: center;
+                }
+                
+                td {
+                    padding: 8px 8px;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+                
+                tbody tr:last-child td {
+                    border-bottom: none;
+                }
+                
+                .text-right {
+                    text-align: right;
+                }
+                
+                /* Totals */
+                .totals-section {
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-bottom: 20px;
+                }
+                
+                .totals-box {
+                    width: 350px;
+                    background: #f8fafc;
+                    border-radius: 10px;
+                    padding: 15px;
+                    border: 1px solid #e2e8f0;
+                }
+                
+                .total-row {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 6px 0;
+                    border-bottom: 1px dashed #cbd5e1;
+                }
+                
+                .total-row:last-child {
+                    border-bottom: none;
+                    font-weight: 700;
+                    font-size: 16px;
+                    color: #059669;
+                    padding-top: 10px;
+                    margin-top: 5px;
+                    border-top: 2px solid #059669;
+                }
+                
+                .total-label {
+                    font-weight: 600;
+                    color: #475569;
+                }
+                
+                .total-value {
+                    font-weight: 600;
+                }
+                
+                /* Amount in Words */
+                .amount-words {
+                    background: #f0fdf4;
+                    border-left: 4px solid #059669;
+                    border-radius: 8px;
+                    padding: 12px 15px;
+                    margin-bottom: 20px;
+                    font-size: 13px;
+                }
+                
+                .amount-words strong {
+                    color: #059669;
+                    margin-right: 8px;
+                }
+                
+                /* Signature */
+                .signature-section {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 2px dashed #cbd5e1;
+                }
+                
+                .signature-box {
+                    text-align: center;
+                    width: 45%;
+                }
+                
+                .signature-line {
+                    border-top: 2px solid #1e293b;
+                    margin: 30px 0 8px;
+                    width: 80%;
+                    display: inline-block;
+                }
+                
+                .signature-box p {
+                    font-size: 12px;
+                    color: #64748b;
+                }
+                
+                .signature-box p:last-child {
+                    font-weight: 600;
+                    color: #1e293b;
+                }
+                
+                /* Print optimization */
+                @media print {
+                    body {
+                        padding: 0;
+                        background: white;
+                    }
+                    
+                    .invoice-container {
+                        padding: 15px;
+                        box-shadow: none;
+                        border-radius: 0;
+                    }
+                    
+                    .header {
+                        background: #333 !important;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                    }
+                    
+                    th {
+                        background: #333 !important;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                    }
+                    
+                    @page {
+                        size: A4;
+                        margin: 15mm;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="invoice-container">
+                <!-- Header -->
+                <div class="header">
+                    <h1><i class="fas fa-file-invoice"></i> TAX INVOICE</h1>
+                    <div class="invoice-meta">
+                        <span><i class="fas fa-hashtag"></i> ${invoiceNo}</span>
+                        <span><i class="fas fa-calendar-alt"></i> ${date}</span>
+                    </div>
+                </div>
+                
+                <!-- Party Details -->
+                <div class="party-details">
+                    <div class="from-box">
+                        <div class="box-header">
+                            <i class="fas fa-building"></i> FROM
+                        </div>
+                        <div class="details-grid">
+                            <div class="details-row">
+                                <span class="details-label">Company:</span>
+                                <span class="details-value">${companyName || 'N/A'}</span>
+                            </div>
+                            <div class="details-row">
+                                <span class="details-label">GST:</span>
+                                <span class="details-value">${companyGST || 'N/A'}</span>
+                            </div>
+                            <div class="details-row">
+                                <span class="details-label">Address:</span>
+                                <span class="details-value">${companyAddress || 'N/A'}</span>
+                            </div>
+                            <div class="details-row">
+                                <span class="details-label">City:</span>
+                                <span class="details-value">${companyCity || 'N/A'} - ${companyPincode || ''}</span>
+                            </div>
+                            <div class="details-row">
+                                <span class="details-label">Place of Supply:</span>
+                                <span class="details-value">${placeSupply || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="to-box">
+                        <div class="box-header">
+                            <i class="fas fa-user-tie"></i> BILL TO
+                        </div>
+                        <div class="details-grid">
+                            <div class="details-row">
+                                <span class="details-label">Name:</span>
+                                <span class="details-value">${billTo || 'N/A'}</span>
+                            </div>
+                            <div class="details-row">
+                                <span class="details-label">GST:</span>
+                                <span class="details-value">${gst || 'N/A'}</span>
+                            </div>
+                            <div class="details-row">
+                                <span class="details-label">Mobile:</span>
+                                <span class="details-value">${mobile || 'N/A'}</span>
+                            </div>
+                            <div class="details-row">
+                                <span class="details-label">Email:</span>
+                                <span class="details-value">${email || 'N/A'}</span>
+                            </div>
+                            <div class="details-row">
+                                <span class="details-label">Address:</span>
+                                <span class="details-value">${address || 'N/A'}</span>
+                            </div>
+                            <div class="details-row">
+                                <span class="details-label">City/Pincode:</span>
+                                <span class="details-value">${city || 'N/A'} - ${pincode || ''}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Items Table -->
+                <div class="items-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sr</th>
+                                <th>Description</th>
+                                <th>HSN</th>
+                                <th>QTY</th>
+                                <th>Rate (₹)</th>
+                                <th>Per</th>
+                                <th>Total (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml || '<tr><td colspan="7" style="text-align:center; padding:20px;">No items found</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Totals -->
+                <div class="totals-section">
+                    <div class="totals-box">
+                        <div class="total-row">
+                            <span class="total-label">Total Quantity:</span>
+                            <span class="total-value">${totalQty.toFixed(2)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span class="total-label">Subtotal:</span>
+                            <span class="total-value">₹${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span class="total-label">GST (${gstRate}%):</span>
+                            <span class="total-value">₹${gstAmt.toFixed(2)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span class="total-label">Total Amount:</span>
+                            <span class="total-value">₹${finalAmt.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Amount in Words -->
+                <div class="amount-words">
+                    <strong><i class="fas fa-font"></i> Amount in Words:</strong> ${words}
+                </div>
+                
+                <!-- Signature -->
+                <div class="signature-section">
+                    <div class="signature-box">
+                        <div class="signature-line"></div>
+                        <p>Authorized Signatory</p>
+                        <p>(For ${companyName || 'Company'})</p>
+                    </div>
+                    <div class="signature-box">
+                        <div class="signature-line"></div>
+                        <p>Customer's Signature</p>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                window.onload = function() {
+                    window.print();
+                    setTimeout(function() {
+                        window.close();
+                    }, 100);
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    
+    showToast('Print preview opened', 'info');
+}
+
+// Utility functions
+function formatDate(str) {
+    if (!str) return "";
+    const d = new Date(str);
+    if (isNaN(d.getTime())) return str;
+    return d.toLocaleDateString('en-GB');
+}
+
+function closePopup() { 
+    document.getElementById("popup").style.display = "none"; 
+}
+
+function numberToWords(amount) {
+    if (amount === 0) return "Zero Rupees Only";
+    
+    const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+        'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    
+    const num = Math.floor(amount);
+    
+    if (num < 20) return ones[num] + " Rupees Only";
+    if (num < 100) {
+        return tens[Math.floor(num / 10)] + (num % 10 ? " " + ones[num % 10] : "") + " Rupees Only";
+    }
+    if (num < 1000) {
+        return ones[Math.floor(num / 100)] + " Hundred" + (num % 100 ? " " + numberToWords(num % 100).replace(' Rupees Only', '') : "") + " Rupees Only";
+    }
+    if (num < 100000) {
+        return numberToWords(Math.floor(num / 1000)).replace(' Rupees Only', '') + " Thousand" + (num % 1000 ? " " + numberToWords(num % 1000).replace(' Rupees Only', '') : "") + " Rupees Only";
+    }
+    if (num < 10000000) {
+        return numberToWords(Math.floor(num / 100000)).replace(' Rupees Only', '') + " Lakh" + (num % 100000 ? " " + numberToWords(num % 100000).replace(' Rupees Only', '') : "") + " Rupees Only";
+    }
+    
+    return numberToWords(Math.floor(num / 10000000)).replace(' Rupees Only', '') + " Crore" + (num % 10000000 ? " " + numberToWords(num % 10000000).replace(' Rupees Only', '') : "") + " Rupees Only";
+}
+
+// Close popup with escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePopup();
+        closeConfirmModal();
+        document.getElementById('fabMenu').classList.remove('active');
+    }
+});
+
+// Close popup when clicking outside
+document.getElementById('popup').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePopup();
+    }
+});
+
+// Initialize
+loadData();
+</script>
+
+</body>
+</html>
